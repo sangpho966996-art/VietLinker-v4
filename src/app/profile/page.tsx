@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { uploadImage, generateAvatarPath } from '@/lib/supabase-storage'
 import type { User } from '@supabase/supabase-js'
 
 export default function ProfilePage() {
@@ -104,15 +105,21 @@ export default function ProfilePage() {
 
       if (selectedFile) {
         setUploading(true)
-        const reader = new FileReader()
-        reader.onload = async (event) => {
-          avatarUrl = event.target?.result as string
-          await updateProfile(avatarUrl)
+        
+        const filePath = generateAvatarPath(user.id, selectedFile.name)
+        const uploadResult = await uploadImage(selectedFile, 'user-images', filePath)
+        
+        if (!uploadResult.success) {
+          alert(`Lỗi tải ảnh: ${uploadResult.error}`)
+          setSaving(false)
+          setUploading(false)
+          return
         }
-        reader.readAsDataURL(selectedFile)
-      } else {
-        await updateProfile(avatarUrl)
+        
+        avatarUrl = uploadResult.url || null
       }
+      
+      await updateProfile(avatarUrl)
     } catch (error) {
       console.error('Error updating profile:', error)
       alert('Có lỗi xảy ra khi cập nhật hồ sơ.')

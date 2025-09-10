@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { uploadImage, deleteImage, generateGalleryPath, getImageUrl } from '@/lib/supabase-storage'
 import type { User } from '@supabase/supabase-js'
 
 interface GalleryImage {
   id: string
+  file_path: string
   url: string
   caption: string
   uploaded_at: string
@@ -68,7 +70,7 @@ export default function ManageGalleryPage() {
         }
 
         setBusinessProfile(profile)
-        loadGalleryImages()
+        await loadGalleryImages()
       } catch (error) {
         console.error('Error in checkUserAndLoadProfile:', error)
       } finally {
@@ -79,16 +81,30 @@ export default function ManageGalleryPage() {
     checkUserAndLoadProfile()
   }, [router])
 
-  const loadGalleryImages = () => {
-    const savedImages = localStorage.getItem('galleryImages')
-    if (savedImages) {
-      setImages(JSON.parse(savedImages))
-    }
-  }
+  const loadGalleryImages = async () => {
+    if (!user) return
 
-  const saveGalleryImages = (newImages: GalleryImage[]) => {
-    localStorage.setItem('galleryImages', JSON.stringify(newImages))
-    setImages(newImages)
+    try {
+      const { data, error } = await supabase
+        .from('business_gallery')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('uploaded_at', { ascending: false })
+
+      if (error) {
+        console.error('Error loading gallery images:', error)
+        return
+      }
+
+      const imagesWithUrls = data.map(img => ({
+        ...img,
+        url: getImageUrl('business-images', img.file_path)
+      }))
+
+      setImages(imagesWithUrls)
+    } catch (error) {
+      console.error('Error in loadGalleryImages:', error)
+    }
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,30 +131,46 @@ export default function ManageGalleryPage() {
     setUploading(true)
 
     try {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const imageUrl = event.target?.result as string
-        
-        const newImage: GalleryImage = {
-          id: Date.now().toString(),
-          url: imageUrl,
-          caption: caption,
-          uploaded_at: new Date().toISOString(),
-        }
-
-        const updatedImages = [...images, newImage]
-        saveGalleryImages(updatedImages)
-        
-        setSelectedFile(null)
-        setCaption('')
-        
-        const fileInput = document.getElementById('file-input') as HTMLInputElement
-        if (fileInput) {
-          fileInput.value = ''
-        }
-      }
+      const filePath = generateGalleryPath(user.id, selectedFile.name)
+      const uploadResult = await uploadImage(selectedFile, 'business-images', filePath)
       
-      reader.readAsDataURL(selectedFile)
+      if (!uploadResult.success) {
+        alert(`Lỗi tải ảnh: ${uploadResult.error}`)
+        setUploading(false)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('business_gallery')
+        .insert({
+          user_id: user.id,
+          file_path: filePath,
+          caption: caption
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error saving to database:', error)
+        alert('Có lỗi xảy ra khi lưu thông tin ảnh.')
+        await deleteImage('business-images', filePath)
+        setUploading(false)
+        return
+      }
+
+      const newImage: GalleryImage = {
+        ...data,
+        url: uploadResult.url!
+      }
+
+      setImages([newImage, ...images])
+      setSelectedFile(null)
+      setCaption('')
+      
+      const fileInput = document.getElementById('file-input') as HTMLInputElement
+      if (fileInput) {
+        fileInput.value = ''
+      }
     } catch (error) {
       console.error('Error uploading image:', error)
       alert('Có lỗi xảy ra khi tải ảnh lên.')
@@ -147,18 +179,53 @@ export default function ManageGalleryPage() {
     }
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa ảnh này?')) {
+  const handleDelete = async (id: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa ảnh này?')) return
+
+    const imageToDelete = images.find(img => img.id === id)
+    if (!imageToDelete) return
+
+    try {
+      const { error } = await supabase
+        .from('business_gallery')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        console.error('Error deleting from database:', error)
+        alert('Có lỗi xảy ra khi xóa ảnh.')
+        return
+      }
+
+      await deleteImage('business-images', imageToDelete.file_path)
+      
       const updatedImages = images.filter(img => img.id !== id)
-      saveGalleryImages(updatedImages)
+      setImages(updatedImages)
+    } catch (error) {
+      console.error('Error in handleDelete:', error)
+      alert('Có lỗi xảy ra khi xóa ảnh.')
     }
   }
 
-  const handleUpdateCaption = (id: string, newCaption: string) => {
-    const updatedImages = images.map(img =>
-      img.id === id ? { ...img, caption: newCaption } : img
-    )
-    saveGalleryImages(updatedImages)
+  const handleUpdateCaption = async (id: string, newCaption: string) => {
+    try {
+      const { error } = await supabase
+        .from('business_gallery')
+        .update({ caption: newCaption })
+        .eq('id', id)
+
+      if (error) {
+        console.error('Error updating caption:', error)
+        return
+      }
+
+      const updatedImages = images.map(img =>
+        img.id === id ? { ...img, caption: newCaption } : img
+      )
+      setImages(updatedImages)
+    } catch (error) {
+      console.error('Error in handleUpdateCaption:', error)
+    }
   }
 
   if (loading) {
