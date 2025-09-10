@@ -73,8 +73,9 @@ export default function BusinessRegisterPage() {
       if (creditError) throw creditError
 
       router.push('/business/dashboard')
-    } catch (err: any) {
-      setError(err.message || 'Có lỗi xảy ra khi đăng ký business profile')
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Có lỗi xảy ra khi đăng ký business profile'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
