@@ -165,6 +165,10 @@ export default function ProfilePage() {
       if (fileInput) {
         fileInput.value = ''
       }
+
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1500)
     } catch (error) {
       console.error('Error updating profile:', error)
       alert('Có lỗi xảy ra khi cập nhật hồ sơ.')
