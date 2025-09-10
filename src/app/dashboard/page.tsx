@@ -12,7 +12,6 @@ interface UserProfile {
   id: string
   email: string
   full_name: string | null
-  name: string | null
   avatar_url: string | null
 }
 
@@ -41,7 +40,7 @@ export default function DashboardPage() {
 
         const { data: profileData, error: profileError } = await supabase
           .from('users')
-          .select('id, email, full_name, name, avatar_url')
+          .select('id, email, full_name, avatar_url')
           .eq('id', user.id)
           .single()
 
@@ -90,7 +89,7 @@ export default function DashboardPage() {
     return null
   }
 
-  const displayName = profile?.full_name || profile?.name || user.email?.split('@')[0] || 'Người dùng'
+  const displayName = profile?.full_name || user.email?.split('@')[0] || 'Người dùng'
 
   return (
     <div className="min-h-screen bg-gray-50">
