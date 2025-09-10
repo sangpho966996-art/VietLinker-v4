@@ -40,7 +40,7 @@ export default function DashboardPage() {
         setUser(user)
 
         const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
+          .from('users')
           .select('id, email, full_name, name, avatar_url')
           .eq('id', user.id)
           .single()
