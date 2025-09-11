@@ -65,7 +65,6 @@ export default function RealEstateDetailPage() {
         .single()
 
       if (userError) {
-        console.error('Error loading seller info:', userError)
       } else {
         setSeller(userData)
       }
@@ -80,13 +79,11 @@ export default function RealEstateDetailPage() {
         .order('created_at', { ascending: false })
 
       if (relatedError) {
-        console.error('Error loading related posts:', relatedError)
       } else {
         setRelatedPosts(relatedData || [])
       }
 
-    } catch (err) {
-      console.error('Error loading post:', err)
+    } catch (_err) {
       setError('Không thể tải tin đăng')
     } finally {
       setLoading(false)

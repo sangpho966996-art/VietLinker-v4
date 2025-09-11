@@ -91,7 +91,6 @@ export default function EditBusinessProfilePage() {
           .single()
 
         if (profileError) {
-          console.error('Error fetching business profile:', profileError)
           router.push('/business/register')
           return
         }
@@ -111,8 +110,8 @@ export default function EditBusinessProfilePage() {
         if (profile.hours) {
           setHours({ ...defaultHours, ...profile.hours })
         }
-      } catch (error) {
-        console.error('Error in checkUserAndLoadProfile:', error)
+      } catch (_error) {
+        router.push('/login')
       } finally {
         setLoading(false)
       }
@@ -138,16 +137,12 @@ export default function EditBusinessProfilePage() {
         .eq('id', businessProfile.id)
 
       if (error) {
-        alert('Có lỗi xảy ra khi cập nhật hồ sơ doanh nghiệp.')
-        console.error('Error updating business profile:', error)
-        return
+        throw new Error('Có lỗi xảy ra khi cập nhật hồ sơ doanh nghiệp.')
       }
 
-      alert('Hồ sơ doanh nghiệp đã được cập nhật thành công!')
       router.push('/business/dashboard')
-    } catch (error) {
-      console.error('Error updating business profile:', error)
-      alert('Có lỗi xảy ra khi cập nhật hồ sơ doanh nghiệp.')
+    } catch (_error) {
+      throw new Error('Có lỗi xảy ra khi cập nhật hồ sơ doanh nghiệp.')
     } finally {
       setSaving(false)
     }

@@ -21,7 +21,6 @@ export default function HeroSection() {
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      alert('Trình duyệt không hỗ trợ định vị')
       return
     }
 
@@ -40,14 +39,10 @@ export default function HeroSection() {
           const data = await response.json()
           const locationString = `${data.city}, ${data.principalSubdivision}`
           setLocation(locationString)
-        } catch (error) {
-          console.error('Error getting location:', error)
-          alert('Không thể lấy vị trí hiện tại')
+        } catch (_error) {
         }
       },
-      (error) => {
-        console.error('Geolocation error:', error)
-        alert('Không thể truy cập vị trí của bạn')
+      (_error) => {
       }
     )
   }

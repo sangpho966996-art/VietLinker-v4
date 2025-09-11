@@ -66,8 +66,7 @@ export default function EditRealEstatePage() {
         })
         setExistingImages(post.images || [])
       }
-    } catch (err) {
-      console.error('Error loading post:', err)
+    } catch (_err) {
       setError('Không thể tải thông tin tin đăng')
     }
   }, [postId])
@@ -157,7 +156,6 @@ export default function EditRealEstatePage() {
 
       router.push('/my-posts')
     } catch (err) {
-      console.error('Error updating real estate post:', err)
       setError(err instanceof Error ? err.message : 'Có lỗi xảy ra')
     } finally {
       setLoading(false)

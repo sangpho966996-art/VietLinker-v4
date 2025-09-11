@@ -368,9 +368,8 @@ export default function CreateRealEstatePage() {
       }
 
       router.push('/dashboard')
-    } catch (err) {
-      console.error('Error creating real estate post:', err)
-      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra')
+    } catch (_err) {
+      setError(_err instanceof Error ? _err.message : 'Có lỗi xảy ra')
     } finally {
       setLoading(false)
     }

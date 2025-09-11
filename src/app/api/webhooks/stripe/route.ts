@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      console.log(`Successfully added ${credits} credits to user ${userId}`)
+      console.log(`Successfully added ${credits} credits to user ${userId}`) // (important-comment) Keep for webhook debugging
     }
 
     return NextResponse.json({ received: true })

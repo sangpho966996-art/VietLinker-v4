@@ -16,15 +16,13 @@ export async function GET(request: NextRequest) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code)
       
       if (error) {
-        console.error('Auth callback error:', error.message)
         return NextResponse.redirect(`${origin}/login?error=auth_callback_error`)
       }
 
       if (data.session) {
         return NextResponse.redirect(`${origin}${next}`)
       }
-    } catch (error) {
-      console.error('Auth callback exception:', error)
+    } catch (_error) {
       return NextResponse.redirect(`${origin}/login?error=auth_callback_exception`)
     }
   }

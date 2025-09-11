@@ -37,7 +37,6 @@ export async function uploadImage(
       })
 
     if (error) {
-      console.error('Storage upload error:', error)
       return { success: false, error: error.message }
     }
 
@@ -46,8 +45,7 @@ export async function uploadImage(
       .getPublicUrl(path)
 
     return { success: true, url: publicUrl }
-  } catch (error) {
-    console.error('Upload error:', error)
+  } catch (_error) {
     return { success: false, error: 'Upload failed' }
   }
 }
@@ -68,13 +66,11 @@ export async function deleteImage(
       .remove([path])
 
     if (error) {
-      console.error('Storage delete error:', error)
       return { success: false, error: error.message }
     }
 
     return { success: true }
-  } catch (error) {
-    console.error('Delete error:', error)
+  } catch (_error) {
     return { success: false, error: 'Delete failed' }
   }
 }

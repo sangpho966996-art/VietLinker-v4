@@ -45,13 +45,12 @@ export default function DashboardPage() {
           .single()
 
         if (profileError && profileError.code !== 'PGRST116') {
-          console.error('Profile fetch error:', profileError.message)
+          setError(`Profile fetch error: ${profileError.message}`)
         } else if (profileData) {
           setProfile(profileData)
         }
-      } catch (err) {
+      } catch (_err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-        console.error('Dashboard error:', errorMessage)
         setError(errorMessage)
       } finally {
         setLoading(false)

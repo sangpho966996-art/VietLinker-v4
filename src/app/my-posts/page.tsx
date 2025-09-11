@@ -69,7 +69,6 @@ export default function MyPostsPage() {
         .order('created_at', { ascending: false })
 
       if (marketplaceError) {
-        console.error('Error loading marketplace posts:', marketplaceError)
       } else {
         setMarketplacePosts(marketplaceData || [])
       }
@@ -81,7 +80,6 @@ export default function MyPostsPage() {
         .order('created_at', { ascending: false })
 
       if (jobError) {
-        console.error('Error loading job posts:', jobError)
       } else {
         setJobPosts(jobData || [])
       }
@@ -93,12 +91,10 @@ export default function MyPostsPage() {
         .order('created_at', { ascending: false })
 
       if (realEstateError) {
-        console.error('Error loading real estate posts:', realEstateError)
       } else {
         setRealEstatePosts(realEstateData || [])
       }
-    } catch (err) {
-      console.error('Error loading posts:', err)
+    } catch (_err) {
     }
   }, [])
 
@@ -108,7 +104,6 @@ export default function MyPostsPage() {
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         
         if (userError) {
-          console.error('Failed to get user:', userError.message)
           router.push('/login')
           return
         }
@@ -120,8 +115,7 @@ export default function MyPostsPage() {
 
         setUser(user)
         await loadPosts(user.id)
-      } catch (err) {
-        console.error('Error loading user data:', err)
+      } catch (_err) {
         router.push('/login')
       } finally {
         setLoading(false)
@@ -165,9 +159,7 @@ export default function MyPostsPage() {
       if (user) {
         await loadPosts(user.id)
       }
-    } catch (err) {
-      console.error('Error deleting post:', err)
-      alert('Có lỗi xảy ra khi xóa tin đăng')
+    } catch (_err) {
     }
   }
 

@@ -58,7 +58,6 @@ export default function ManageGalleryPage() {
         .order('uploaded_at', { ascending: false })
 
       if (error) {
-        console.error('Error loading gallery images:', error)
         return
       }
 
@@ -68,8 +67,7 @@ export default function ManageGalleryPage() {
       }))
 
       setImages(imagesWithUrls)
-    } catch (error) {
-      console.error('Error in loadGalleryImages:', error)
+    } catch (_error) {
     }
   }, [user])
 
@@ -91,14 +89,12 @@ export default function ManageGalleryPage() {
           .single()
 
         if (profileError) {
-          console.error('Error fetching business profile:', profileError)
           router.push('/business/register')
           return
         }
 
         setBusinessProfile(profile)
-      } catch (error) {
-        console.error('Error in checkUserAndLoadProfile:', error)
+      } catch (_error) {
       } finally {
         setLoading(false)
       }
@@ -117,12 +113,10 @@ export default function ManageGalleryPage() {
     const file = e.target.files?.[0]
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('File quá lớn. Vui lòng chọn file nhỏ hơn 5MB.')
         return
       }
       
       if (!file.type.startsWith('image/')) {
-        alert('Vui lòng chọn file hình ảnh.')
         return
       }
       
@@ -141,7 +135,6 @@ export default function ManageGalleryPage() {
       const uploadResult = await uploadImage(selectedFile, 'business-images', filePath)
       
       if (!uploadResult.success) {
-        alert(`Lỗi tải ảnh: ${uploadResult.error}`)
         setUploading(false)
         return
       }
@@ -157,8 +150,6 @@ export default function ManageGalleryPage() {
         .single()
 
       if (error) {
-        console.error('Error saving to database:', error)
-        alert('Có lỗi xảy ra khi lưu thông tin ảnh.')
         await deleteImage('business-images', filePath)
         setUploading(false)
         return
@@ -177,9 +168,7 @@ export default function ManageGalleryPage() {
       if (fileInput) {
         fileInput.value = ''
       }
-    } catch (error) {
-      console.error('Error uploading image:', error)
-      alert('Có lỗi xảy ra khi tải ảnh lên.')
+    } catch (_error) {
     } finally {
       setUploading(false)
     }
@@ -198,8 +187,6 @@ export default function ManageGalleryPage() {
         .eq('id', id)
 
       if (error) {
-        console.error('Error deleting from database:', error)
-        alert('Có lỗi xảy ra khi xóa ảnh.')
         return
       }
 
@@ -207,9 +194,7 @@ export default function ManageGalleryPage() {
       
       const updatedImages = images.filter(img => img.id !== id)
       setImages(updatedImages)
-    } catch (error) {
-      console.error('Error in handleDelete:', error)
-      alert('Có lỗi xảy ra khi xóa ảnh.')
+    } catch (_error) {
     }
   }
 
@@ -221,7 +206,6 @@ export default function ManageGalleryPage() {
         .eq('id', id)
 
       if (error) {
-        console.error('Error updating caption:', error)
         return
       }
 
@@ -229,8 +213,7 @@ export default function ManageGalleryPage() {
         img.id === id ? { ...img, caption: newCaption } : img
       )
       setImages(updatedImages)
-    } catch (error) {
-      console.error('Error in handleUpdateCaption:', error)
+    } catch (_error) {
     }
   }
 

@@ -138,9 +138,8 @@ export default function CreateMarketplacePage() {
       }
 
       router.push('/dashboard')
-    } catch (err) {
-      console.error('Error creating marketplace post:', err)
-      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra')
+    } catch (_err) {
+      setError(_err instanceof Error ? _err.message : 'Có lỗi xảy ra')
     } finally {
       setLoading(false)
     }

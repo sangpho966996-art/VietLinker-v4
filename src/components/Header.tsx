@@ -16,12 +16,10 @@ export default function Header() {
       try {
         const { data: { user }, error } = await supabase.auth.getUser()
         if (error) {
-          console.error('Error getting user:', error.message)
           return
         }
         setUser(user)
-      } catch (error) {
-        console.error('Error in getUser:', error)
+      } catch (_error) {
       }
     }
 
@@ -34,8 +32,7 @@ export default function Header() {
           if (event === 'SIGNED_OUT') {
             router.refresh()
           }
-        } catch (error) {
-          console.error('Error in auth state change:', error)
+        } catch (_error) {
         }
       }
     )
@@ -49,12 +46,10 @@ export default function Header() {
     try {
       const { error } = await supabase.auth.signOut()
       if (error) {
-        console.error('Error signing out:', error.message)
         return
       }
       router.push('/')
-    } catch (error) {
-      console.error('Error in handleSignOut:', error)
+    } catch (_error) {
     }
   }
 

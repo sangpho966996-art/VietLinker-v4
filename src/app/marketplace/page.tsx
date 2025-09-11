@@ -52,8 +52,7 @@ export default function MarketplacePage() {
       if (error) throw error
 
       setPosts(data || [])
-    } catch (err) {
-      console.error('Error loading marketplace posts:', err)
+    } catch (_err) {
       setError('Không thể tải tin đăng')
     } finally {
       setLoading(false)

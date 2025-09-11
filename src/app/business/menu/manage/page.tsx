@@ -76,7 +76,6 @@ export default function ManageMenuPage() {
           .single()
 
         if (profileError) {
-          console.error('Error fetching business profile:', profileError)
           router.push('/business/register')
           return
         }
@@ -88,8 +87,8 @@ export default function ManageMenuPage() {
 
         setBusinessProfile(profile)
         loadMenuItems()
-      } catch (error) {
-        console.error('Error in checkUserAndLoadProfile:', error)
+      } catch (_error) {
+        router.push('/login')
       } finally {
         setLoading(false)
       }

@@ -44,12 +44,10 @@ export default function BusinessDashboard() {
         .single()
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error loading business profile:', error)
       } else if (profile) {
         setBusinessProfile(profile)
       }
     } catch (error: unknown) {
-      console.error('Error:', error)
     } finally {
       setLoading(false)
     }

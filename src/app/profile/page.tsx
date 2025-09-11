@@ -25,6 +25,8 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -51,7 +53,6 @@ export default function ProfilePage() {
           .single()
 
         if (profileError) {
-          console.error('Error fetching user profile:', profileError)
         } else {
           setUserProfile(profile)
           setFormData({
@@ -62,8 +63,7 @@ export default function ProfilePage() {
           })
           setAvatarPreview(profile.avatar_url || null)
         }
-      } catch (error) {
-        console.error('Error in checkUser:', error)
+      } catch (_error) {
       } finally {
         setLoading(false)
       }
@@ -76,14 +76,16 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('File quá lớn. Vui lòng chọn file nhỏ hơn 5MB.')
+        setError('File quá lớn. Vui lòng chọn file nhỏ hơn 5MB.')
         return
       }
       
       if (!file.type.startsWith('image/')) {
-        alert('Vui lòng chọn file hình ảnh.')
+        setError('Vui lòng chọn file hình ảnh.')
         return
       }
+      
+      setError(null)
       
       setSelectedFile(file)
       
@@ -111,7 +113,7 @@ export default function ProfilePage() {
         const uploadResult = await uploadImage(selectedFile, 'user-images', filePath)
         
         if (!uploadResult.success) {
-          alert(`Lỗi tải ảnh: ${uploadResult.error}`)
+          setError(`Lỗi tải ảnh: ${uploadResult.error}`)
           setSaving(false)
           setUploading(false)
           return
@@ -121,9 +123,8 @@ export default function ProfilePage() {
       }
       
       await updateProfile(avatarUrl)
-    } catch (error) {
-      console.error('Error updating profile:', error)
-      alert('Có lỗi xảy ra khi cập nhật hồ sơ.')
+    } catch (_error) {
+      setError('Có lỗi xảy ra khi cập nhật hồ sơ.')
       setSaving(false)
       setUploading(false)
     }
@@ -143,12 +144,12 @@ export default function ProfilePage() {
         .eq('id', user!.id)
 
       if (error) {
-        alert('Có lỗi xảy ra khi cập nhật hồ sơ.')
-        console.error('Error updating profile:', error)
+        setError('Có lỗi xảy ra khi cập nhật hồ sơ.')
         return
       }
 
-      alert('Hồ sơ đã được cập nhật thành công!')
+      setSuccess('Hồ sơ đã được cập nhật thành công!')
+      setError(null)
       
       const { data: updatedProfile } = await supabase
         .from('users')
@@ -170,9 +171,8 @@ export default function ProfilePage() {
       setTimeout(() => {
         router.push('/dashboard')
       }, 1500)
-    } catch (error) {
-      console.error('Error updating profile:', error)
-      alert('Có lỗi xảy ra khi cập nhật hồ sơ.')
+    } catch (_error) {
+      setError('Có lỗi xảy ra khi cập nhật hồ sơ.')
     } finally {
       setSaving(false)
       setUploading(false)
@@ -198,6 +198,18 @@ export default function ProfilePage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-6">
               Hồ sơ cá nhân
             </h1>
+
+            {error && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-green-600 text-sm">{success}</p>
+              </div>
+            )}
 
             {userProfile && (
               <div className="mb-6 p-4 bg-gray-50 rounded-lg">

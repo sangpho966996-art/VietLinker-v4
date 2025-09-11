@@ -518,7 +518,6 @@ export default function CreateJobPage() {
 
       router.push('/dashboard')
     } catch (err) {
-      console.error('Error creating job post:', err)
       setError(err instanceof Error ? err.message : 'Có lỗi xảy ra')
     } finally {
       setLoading(false)

@@ -56,7 +56,6 @@ export default function RegisterPage() {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định'
-      console.error('Registration error:', errorMessage)
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -80,7 +79,6 @@ export default function RegisterPage() {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định'
-      console.error('Google signup error:', errorMessage)
       setError(errorMessage)
       setLoading(false)
     }

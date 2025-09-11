@@ -63,7 +63,6 @@ export default function JobDetailPage() {
         .single()
 
       if (postError) {
-        console.error('Error loading post:', postError)
         setError('Không tìm thấy tin đăng')
         return
       }
@@ -92,8 +91,7 @@ export default function JobDetailPage() {
         setRelatedPosts(relatedData)
       }
 
-    } catch (err) {
-      console.error('Error loading post:', err)
+    } catch (_err) {
       setError('Không thể tải thông tin tin đăng')
     } finally {
       setLoading(false)

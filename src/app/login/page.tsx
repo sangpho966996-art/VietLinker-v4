@@ -41,7 +41,6 @@ export default function LoginPage() {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định'
-      console.error('Login error:', errorMessage)
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -65,7 +64,6 @@ export default function LoginPage() {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định'
-      console.error('Google login error:', errorMessage)
       setError(errorMessage)
       setLoading(false)
     }

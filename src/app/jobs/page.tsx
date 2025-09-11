@@ -71,14 +71,12 @@ export default function JobsPage() {
       const { data, error } = await query
 
       if (error) {
-        console.error('Error loading posts:', error)
         setError('Không thể tải danh sách việc làm')
         return
       }
 
       setPosts(data || [])
-    } catch (err) {
-      console.error('Error loading posts:', err)
+    } catch (_err) {
       setError('Không thể tải danh sách việc làm')
     } finally {
       setLoading(false)

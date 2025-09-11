@@ -35,7 +35,6 @@ export default function FeaturedBusinesses() {
         setBusinesses(data || [])
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-        console.error('Error fetching businesses:', errorMessage)
         setError(errorMessage)
       } finally {
         setLoading(false)

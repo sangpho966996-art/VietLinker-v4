@@ -71,8 +71,7 @@ export default function EditJobPage() {
         })
         setExistingImages(post.images || [])
       }
-    } catch (err) {
-      console.error('Error loading post:', err)
+    } catch (_err) {
       setError('Không thể tải thông tin tin đăng')
     }
   }, [postId])
@@ -159,7 +158,6 @@ export default function EditJobPage() {
 
       router.push('/my-posts')
     } catch (err) {
-      console.error('Error updating job post:', err)
       setError(err instanceof Error ? err.message : 'Có lỗi xảy ra')
     } finally {
       setLoading(false)

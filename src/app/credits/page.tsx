@@ -52,12 +52,10 @@ function CreditsPageContent() {
           .single()
 
         if (profileError) {
-          console.error('Error fetching user profile:', profileError)
         } else {
           setUserProfile(profile)
         }
-      } catch (error) {
-        console.error('Error in checkUser:', error)
+      } catch (_error) {
       } finally {
         setLoading(false)
       }
@@ -69,11 +67,9 @@ function CreditsPageContent() {
     const canceled = searchParams.get('canceled')
 
     if (success) {
-      alert('Thanh toán thành công! Credits đã được thêm vào tài khoản của bạn.')
-      router.replace('/credits')
+      router.replace('/credits?message=success')
     } else if (canceled) {
-      alert('Thanh toán đã bị hủy.')
-      router.replace('/credits')
+      router.replace('/credits?message=canceled')
     }
   }, [router, searchParams])
 
@@ -97,13 +93,13 @@ function CreditsPageContent() {
       const { sessionId, error } = await response.json()
 
       if (error) {
-        alert('Có lỗi xảy ra khi tạo phiên thanh toán.')
+        console.error('Payment session creation failed:', error)
         return
       }
 
       const stripe = await stripePromise
       if (!stripe) {
-        alert('Không thể tải Stripe.')
+        console.error('Failed to load Stripe')
         return
       }
 
@@ -112,11 +108,10 @@ function CreditsPageContent() {
       })
 
       if (stripeError) {
-        alert('Có lỗi xảy ra khi chuyển hướng đến trang thanh toán.')
+        console.error('Stripe checkout redirect failed:', stripeError)
       }
     } catch (error) {
-      console.error('Error purchasing credits:', error)
-      alert('Có lỗi xảy ra khi mua credits.')
+      console.error('Credit purchase failed:', error)
     } finally {
       setPurchasing(null)
     }
