@@ -9,6 +9,16 @@ import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
+interface RealEstateTemplate {
+  title: string
+  description: string
+  price: string
+  bedrooms: string
+  bathrooms: string
+  square_feet: string
+  address_placeholder: string
+}
+
 export default function CreateRealEstatePage() {
   const [user, setUser] = useState<User | null>(null)
   const [userCredits, setUserCredits] = useState<number>(0)
@@ -28,6 +38,7 @@ export default function CreateRealEstatePage() {
   const [images, setImages] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showTemplates, setShowTemplates] = useState(false)
   const router = useRouter()
 
   const propertyTypes = [
@@ -39,6 +50,197 @@ export default function CreateRealEstatePage() {
     { value: 'commercial', label: 'Thương mại' },
     { value: 'room-rental', label: 'Cho thuê phòng' }
   ]
+
+  const getRealEstateTemplates = (propertyType: string): RealEstateTemplate[] => {
+    switch (propertyType) {
+      case 'room-rental':
+        return [
+          {
+            title: 'Cho Thuê Phòng Sạch Sẽ - Gần Trung Tâm',
+            description: `🏠 CHO THUÊ PHÒNG SẠCH SẼ - GIÁ TỐT
+
+📍 VỊ TRÍ:
+• Gần trung tâm thành phố, đi làm thuận tiện
+• Gần siêu thị, nhà hàng Việt Nam
+• Khu vực an toàn, yên tĩnh
+
+🏡 THÔNG TIN PHÒNG:
+• Phòng riêng biệt, có khóa riêng
+• Đầy đủ nội thất: giường, tủ, bàn học
+• Internet WiFi tốc độ cao miễn phí
+• Điều hòa, quạt trần
+
+🚿 TIỆN ÍCH:
+• Nhà bếp chung sạch sẽ
+• Máy giặt, máy sấy miễn phí
+• Chỗ đậu xe miễn phí
+• Khu vực BBQ ngoài trời
+
+💰 GIÁ THUÊ: $[GIÁ]/tháng (bao điện nước)
+📞 Liên hệ: [SỐ ĐIỆN THOẠI]
+💬 Text/Call: Tiếng Việt & English OK
+
+⭐ Ưu tiên người Việt, sinh viên, người đi làm`,
+            price: '800',
+            bedrooms: '1',
+            bathrooms: '1',
+            square_feet: '150',
+            address_placeholder: '[ĐỊA CHỈ CHI TIẾT]'
+          },
+          {
+            title: 'Phòng Trọ Sinh Viên - Giá Rẻ, Tiện Nghi',
+            description: `🎓 PHÒNG TRỌ DÀNH CHO SINH VIÊN
+
+📚 ĐẶC BIỆT PHÙNG HỢP:
+• Gần trường đại học, thư viện
+• Môi trường học tập yên tĩnh
+• Nhiều bạn sinh viên Việt Nam
+
+🏠 NỘI THẤT:
+• Giường đơn, nệm mới
+• Bàn học rộng, ghế ergonomic
+• Tủ quần áo lớn
+• Kệ sách, đèn học
+
+🌐 TIỆN ÍCH:
+• WiFi tốc độ cao 24/7
+• Máy lạnh, quạt trần
+• Tủ lạnh mini trong phòng
+• Khu vực nấu ăn chung
+
+💡 ƯU ĐÃI:
+• Miễn phí tháng đầu tiên
+• Không cần deposit cho sinh viên
+• Hỗ trợ giấy tờ thuê nhà
+
+💰 CHỈ: $[GIÁ]/tháng
+📱 Liên hệ ngay: [SỐ ĐIỆN THOẠI]`,
+            price: '650',
+            bedrooms: '1',
+            bathrooms: '1',
+            square_feet: '120',
+            address_placeholder: '[ĐỊA CHỈ GẦN TRƯỜNG]'
+          }
+        ]
+      case 'commercial':
+        return [
+          {
+            title: 'Sang Nhượng Tiệm Nails - Khách Quen Đông',
+            description: `💅 SANG NHƯỢNG TIỆM NAILS ĐANG KINH DOANH
+
+🏪 THÔNG TIN TIỆM:
+• Hoạt động 5 năm, khách quen đông đảo
+• Vị trí đắc địa, dễ nhìn thấy
+• Khu vực người Mỹ đông, thu nhập cao
+• Parking rộng rãi cho khách
+
+💺 TRANG THIẾT BỊ:
+• 8 ghế pedicure cao cấp
+• 6 bàn manicure
+• Đầy đủ dụng cụ, máy móc hiện đại
+• Hệ thống thông gió tốt
+
+💰 DOANH THU:
+• Trung bình $[DOANH THU]/tháng
+• Khách walk-in và appointment
+• Giá dịch vụ cao, lợi nhuận tốt
+
+📋 BAO GỒM:
+• Toàn bộ thiết bị, nội thất
+• Danh sách khách hàng
+• Training 2 tuần
+• Hỗ trợ giấy phép
+
+💵 GIÁ: $[GIÁ] (có thể thương lượng)
+📞 Liên hệ: [SỐ ĐIỆN THOẠI]
+🤝 Chỉ bán cho người Việt có kinh nghiệm`,
+            price: '85000',
+            bedrooms: '',
+            bathrooms: '2',
+            square_feet: '1200',
+            address_placeholder: '[ĐỊA CHỈ TIỆM]'
+          },
+          {
+            title: 'Sang Nhượng Nhà Hàng Việt Nam - Setup Hoàn Chỉnh',
+            description: `🍜 SANG NHƯỢNG NHÀ HÀNG VIỆT NAM
+
+🏮 ĐẶC ĐIỂM NỔI BẬT:
+• Nhà hàng Phở, Cơm, Bánh mì
+• Khu vực đông người Việt và Mỹ
+• Đã có license đầy đủ
+• Yelp 4.5 sao, Google reviews tốt
+
+🍽️ TRANG THIẾT BỊ:
+• Bếp công nghiệp hoàn chỉnh
+• 40 chỗ ngồi, decor Việt Nam
+• Hệ thống POS hiện đại
+• Tủ lạnh, freezer công nghiệp
+
+📈 KINH DOANH:
+• Doanh thu ổn định $[DOANH THU]/tháng
+• Khách quen nhiều, delivery tốt
+• Menu đa dạng, giá cạnh tranh
+• Staff đã được training
+
+🎁 CHUYỂN GIAO:
+• Toàn bộ recipes bí mật
+• Training 1 tháng
+• Giới thiệu suppliers Việt
+• Hỗ trợ marketing
+
+💰 GIÁ: $[GIÁ] + rent $3,500/tháng
+☎️ Gọi ngay: [SỐ ĐIỆN THOẠI]`,
+            price: '120000',
+            bedrooms: '',
+            bathrooms: '2',
+            square_feet: '2000',
+            address_placeholder: '[ĐỊA CHỈ NHÀ HÀNG]'
+          }
+        ]
+      case 'house':
+        return [
+          {
+            title: 'Bán Nhà Đẹp - Khu Người Việt Đông',
+            description: `🏡 BÁN NHÀ ĐẸP - KHU NGƯỜI VIỆT
+
+🌟 ĐẶC ĐIỂM NỔI BẬT:
+• Khu vực nhiều gia đình Việt Nam
+• Gần chợ Việt, nhà hàng Phở
+• Trường học tốt, an toàn cho trẻ em
+• Giao thông thuận tiện đi làm
+
+🏠 THÔNG TIN NHÀ:
+• Xây dựng năm 2015, còn mới
+• Sân trước và sân sau rộng
+• Garage 2 xe, driveway rộng
+• Flooring gỗ, kitchen granite
+
+🌳 KHUÔN VIÊN:
+• Sân sau có thể làm vườn rau
+• BBQ area cho gia đình
+• Hàng rào riêng tư
+• Cây ăn quả: xoài, ổi
+
+💡 TIỆN ÍCH:
+• Central AC/Heat
+• Washer/Dryer hookup
+• Dishwasher, microwave
+• Walk-in closets
+
+💰 GIÁ: $[GIÁ] (có thể thương lượng)
+📞 Chủ nhà: [SỐ ĐIỆN THOẠI]
+👨‍👩‍👧‍👦 Ưu tiên bán cho gia đình Việt`,
+            price: '650000',
+            bedrooms: '4',
+            bathrooms: '3',
+            square_feet: '2200',
+            address_placeholder: '[ĐỊA CHỈ NHÀ]'
+          }
+        ]
+      default:
+        return []
+    }
+  }
 
   useEffect(() => {
     const getUser = async () => {
@@ -71,6 +273,24 @@ export default function CreateRealEstatePage() {
       ...prev,
       [name]: value
     }))
+    
+    if (name === 'property_type') {
+      setShowTemplates(value !== '' && getRealEstateTemplates(value).length > 0)
+    }
+  }
+
+  const handleTemplateSelect = (template: RealEstateTemplate) => {
+    setFormData(prev => ({
+      ...prev,
+      title: template.title,
+      description: template.description,
+      price: template.price,
+      bedrooms: template.bedrooms,
+      bathrooms: template.bathrooms,
+      square_feet: template.square_feet,
+      address: template.address_placeholder
+    }))
+    setShowTemplates(false)
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -240,6 +460,44 @@ export default function CreateRealEstatePage() {
                   ))}
                 </select>
               </div>
+
+              {showTemplates && formData.property_type && getRealEstateTemplates(formData.property_type).length > 0 && (
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-green-900 mb-3 flex items-center">
+                    ✨ Mẫu tin đăng có sẵn - Chỉ cần sửa thông tin là đăng ngay!
+                  </h3>
+                  <div className="space-y-3">
+                    {getRealEstateTemplates(formData.property_type).map((template, index) => (
+                      <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:border-green-300 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 text-sm mb-1">{template.title}</h4>
+                            <p className="text-xs text-gray-600 mb-2">
+                              💰 ${template.price ? `${parseInt(template.price).toLocaleString()}` : 'Liên hệ'} • 
+                              {template.bedrooms && ` ${template.bedrooms} phòng ngủ •`}
+                              {template.bathrooms && ` ${template.bathrooms} phòng tắm •`}
+                              {template.square_feet && ` ${template.square_feet} sq ft`}
+                            </p>
+                            <p className="text-xs text-gray-500 line-clamp-2">
+                              {template.description.substring(0, 100)}...
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleTemplateSelect(template)}
+                            className="ml-3 px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors whitespace-nowrap"
+                          >
+                            📝 Dùng mẫu này
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-green-700 mt-3">
+                    💡 <strong>Lưu ý:</strong> Sau khi chọn mẫu, bạn chỉ cần thay đổi địa chỉ, giá cả, số điện thoại là có thể đăng tin ngay!
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
