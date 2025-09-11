@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 
-export default function Footer() {
+export default React.memo(function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -40,27 +40,27 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Danh mục</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/marketplace" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/marketplace" prefetch={true} className="text-gray-400 hover:text-white transition-colors">
                   Marketplace
                 </Link>
               </li>
               <li>
-                <Link href="/jobs" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/jobs" prefetch={true} className="text-gray-400 hover:text-white transition-colors">
                   Việc làm
                 </Link>
               </li>
               <li>
-                <Link href="/real-estate" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/real-estate" prefetch={true} className="text-gray-400 hover:text-white transition-colors">
                   Bất động sản
                 </Link>
               </li>
               <li>
-                <Link href="/food" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/food" prefetch={true} className="text-gray-400 hover:text-white transition-colors">
                   Nhà hàng
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/services" prefetch={true} className="text-gray-400 hover:text-white transition-colors">
                   Dịch vụ
                 </Link>
               </li>
@@ -110,4 +110,4 @@ export default function Footer() {
       </div>
     </footer>
   )
-}
+})

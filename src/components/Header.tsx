@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
-export default function Header() {
+export default React.memo(function Header() {
   const [user, setUser] = useState<User | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter()
@@ -16,12 +16,10 @@ export default function Header() {
       try {
         const { data: { user }, error } = await supabase.auth.getUser()
         if (error) {
-          console.error('Error getting user:', error.message)
           return
         }
         setUser(user)
-      } catch (error) {
-        console.error('Error in getUser:', error)
+      } catch {
       }
     }
 
@@ -34,8 +32,7 @@ export default function Header() {
           if (event === 'SIGNED_OUT') {
             router.refresh()
           }
-        } catch (error) {
-          console.error('Error in auth state change:', error)
+        } catch {
         }
       }
     )
@@ -49,12 +46,10 @@ export default function Header() {
     try {
       const { error } = await supabase.auth.signOut()
       if (error) {
-        console.error('Error signing out:', error.message)
         return
       }
       router.push('/')
-    } catch (error) {
-      console.error('Error in handleSignOut:', error)
+    } catch {
     }
   }
 
@@ -70,19 +65,19 @@ export default function Header() {
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/marketplace" className="text-gray-700 hover:text-red-600 font-medium">
+            <Link href="/marketplace" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
               Marketplace
             </Link>
-            <Link href="/jobs" className="text-gray-700 hover:text-red-600 font-medium">
+            <Link href="/jobs" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
               Việc làm
             </Link>
-            <Link href="/real-estate" className="text-gray-700 hover:text-red-600 font-medium">
+            <Link href="/real-estate" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
               Bất động sản
             </Link>
-            <Link href="/food" className="text-gray-700 hover:text-red-600 font-medium">
+            <Link href="/food" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
               Nhà hàng
             </Link>
-            <Link href="/services" className="text-gray-700 hover:text-red-600 font-medium">
+            <Link href="/services" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
               Dịch vụ
             </Link>
           </nav>
@@ -90,7 +85,7 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <Link href="/dashboard" className="text-gray-700 hover:text-red-600 font-medium">
+                <Link href="/dashboard" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
                   Dashboard
                 </Link>
                 <div className="relative">
@@ -165,19 +160,19 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <nav className="flex flex-col space-y-4">
-              <Link href="/marketplace" className="text-gray-700 hover:text-red-600 font-medium">
+              <Link href="/marketplace" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
                 Marketplace
               </Link>
-              <Link href="/jobs" className="text-gray-700 hover:text-red-600 font-medium">
+              <Link href="/jobs" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
                 Việc làm
               </Link>
-              <Link href="/real-estate" className="text-gray-700 hover:text-red-600 font-medium">
+              <Link href="/real-estate" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
                 Bất động sản
               </Link>
-              <Link href="/food" className="text-gray-700 hover:text-red-600 font-medium">
+              <Link href="/food" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
                 Nhà hàng
               </Link>
-              <Link href="/services" className="text-gray-700 hover:text-red-600 font-medium">
+              <Link href="/services" prefetch={true} className="text-gray-700 hover:text-red-600 font-medium">
                 Dịch vụ
               </Link>
             </nav>
@@ -186,4 +181,4 @@ export default function Header() {
       </div>
     </header>
   )
-}
+})

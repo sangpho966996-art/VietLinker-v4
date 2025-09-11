@@ -13,7 +13,7 @@ interface Business {
   state: string | null
 }
 
-export default function FeaturedBusinesses() {
+export default React.memo(function FeaturedBusinesses() {
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +35,6 @@ export default function FeaturedBusinesses() {
         setBusinesses(data || [])
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-        console.error('Error fetching businesses:', errorMessage)
         setError(errorMessage)
       } finally {
         setLoading(false)
@@ -107,7 +106,7 @@ export default function FeaturedBusinesses() {
               {businesses.map((business) => (
                 <Link
                   key={business.id}
-                  href={`/business/${business.id}`}
+                  href={`/${business.business_type}/${business.id}`}
                   className="group bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
                   <div className="aspect-w-16 aspect-h-9 bg-gradient-to-r from-red-500 to-red-600">
@@ -157,7 +156,7 @@ export default function FeaturedBusinesses() {
 
             <div className="text-center">
               <Link
-                href="/business"
+                href="/food"
                 className="btn btn-secondary"
               >
                 Xem tất cả doanh nghiệp
@@ -168,4 +167,4 @@ export default function FeaturedBusinesses() {
       </div>
     </section>
   )
-}
+})

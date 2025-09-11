@@ -21,7 +21,6 @@ export default function HeroSection() {
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      alert('Trình duyệt không hỗ trợ định vị')
       return
     }
 
@@ -29,6 +28,9 @@ export default function HeroSection() {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords
+          
+          localStorage.setItem('userLocation', JSON.stringify({ lat: latitude, lng: longitude }))
+          
           const response = await fetch(
             `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
           )
@@ -40,21 +42,31 @@ export default function HeroSection() {
           const data = await response.json()
           const locationString = `${data.city}, ${data.principalSubdivision}`
           setLocation(locationString)
-        } catch (error) {
-          console.error('Error getting location:', error)
-          alert('Không thể lấy vị trí hiện tại')
+        } catch {
+          setLocation('Houston, TX')
         }
       },
-      (error) => {
-        console.error('Geolocation error:', error)
-        alert('Không thể truy cập vị trí của bạn')
+      () => {
+        setLocation('Houston, TX')
       }
     )
   }
 
   return (
-    <section className="bg-gradient-to-r from-red-600 to-red-700 text-white py-16 md:py-24">
-      <div className="container mx-auto px-4 text-center">
+    <section className="relative bg-gradient-to-r from-red-600 to-red-700 text-white py-16 md:py-24 overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80')`
+        }}
+      />
+      
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/50" />
+      
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
           Kết nối cộng đồng Việt
         </h1>
@@ -96,12 +108,59 @@ export default function HeroSection() {
                 </button>
               </div>
               
-              <button
-                type="submit"
-                className="px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Tìm kiếm
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Tìm kiếm
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const params = new URLSearchParams()
+                    if (searchQuery.trim()) params.set('q', searchQuery.trim())
+                    params.set('nearby', 'true')
+                    
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        async (position) => {
+                          const { latitude, longitude } = position.coords
+                          localStorage.setItem('userLocation', JSON.stringify({ lat: latitude, lng: longitude }))
+                          
+                          try {
+                            const response = await fetch(
+                              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+                            )
+                            if (response.ok) {
+                              const data = await response.json()
+                              const locationString = `${data.city}, ${data.principalSubdivision}`
+                              params.set('location', locationString)
+                            } else {
+                              params.set('location', 'Houston, TX')
+                            }
+                          } catch {
+                            params.set('location', 'Houston, TX')
+                          }
+                          
+                          router.push(`/search?${params.toString()}`)
+                        },
+                        () => {
+                          params.set('location', 'Houston, TX')
+                          router.push(`/search?${params.toString()}`)
+                        }
+                      )
+                    } else {
+                      params.set('location', 'Houston, TX')
+                      router.push(`/search?${params.toString()}`)
+                    }
+                  }}
+                  className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                  title="Tìm dịch vụ gần tôi"
+                >
+                  🎯 Gần tôi
+                </button>
+              </div>
             </div>
           </div>
         </form>

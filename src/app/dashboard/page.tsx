@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import Header from '@/components/Header'
 import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -12,7 +13,6 @@ interface UserProfile {
   id: string
   email: string
   full_name: string | null
-  name: string | null
   avatar_url: string | null
 }
 
@@ -40,20 +40,18 @@ export default function DashboardPage() {
         setUser(user)
 
         const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('id, email, full_name, name, avatar_url')
+          .from('users')
+          .select('id, email, full_name, avatar_url')
           .eq('id', user.id)
           .single()
 
         if (profileError && profileError.code !== 'PGRST116') {
-          console.error('Profile fetch error:', profileError.message)
+          setError(`Profile fetch error: ${profileError.message}`)
         } else if (profileData) {
           setProfile(profileData)
         }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-        console.error('Dashboard error:', errorMessage)
-        setError(errorMessage)
+      } catch {
+        setError('Không thể tải thông tin người dùng')
       } finally {
         setLoading(false)
       }
@@ -90,32 +88,13 @@ export default function DashboardPage() {
     return null
   }
 
-  const displayName = profile?.full_name || profile?.name || user.email?.split('@')[0] || 'Người dùng'
+  const displayName = profile?.full_name || user.email?.split('@')[0] || 'Người dùng'
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">V</span>
-                </div>
-                <span className="text-xl font-bold text-gray-900">VietLinker</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Xin chào, {displayName}</span>
-              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {displayName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Suspense fallback={<div className="h-16 bg-white border-b"></div>}>
+        <Header />
+      </Suspense>
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -216,11 +195,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Hoạt động gần đây</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Tin đăng của tôi</h2>
+            <Link href="/my-posts" className="btn btn-primary">
+              Xem tất cả tin đăng
+            </Link>
+          </div>
           <div className="text-center py-8">
-            <p className="text-gray-500">Chưa có hoạt động nào</p>
+            <p className="text-gray-500">Xem và quản lý tất cả tin đăng của bạn</p>
             <p className="text-sm text-gray-400 mt-2">
-              Bắt đầu bằng cách đăng tin hoặc tìm kiếm dịch vụ
+              Marketplace, Việc làm, Bất động sản
             </p>
           </div>
         </div>

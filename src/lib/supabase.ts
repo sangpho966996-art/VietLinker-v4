@@ -1,10 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
+export interface BusinessHours {
+  [key: string]: {
+    open: string
+    close: string
+    closed: boolean
+  }
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials not configured. Some features may not work.')
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -23,8 +30,11 @@ export type Database = {
           id: string
           email: string
           full_name: string | null
+          phone: string | null
+          address: string | null
           avatar_url: string | null
           credits: number
+          role: 'user' | 'admin' | 'moderator'
           created_at: string
           updated_at: string
         }
@@ -32,8 +42,11 @@ export type Database = {
           id: string
           email: string
           full_name?: string | null
+          phone?: string | null
+          address?: string | null
           avatar_url?: string | null
           credits?: number
+          role?: 'user' | 'admin' | 'moderator'
           created_at?: string
           updated_at?: string
         }
@@ -41,8 +54,11 @@ export type Database = {
           id?: string
           email?: string
           full_name?: string | null
+          phone?: string | null
+          address?: string | null
           avatar_url?: string | null
           credits?: number
+          role?: 'user' | 'admin' | 'moderator'
           created_at?: string
           updated_at?: string
         }
@@ -55,9 +71,11 @@ export type Database = {
           description: string | null
           price: number | null
           category: string
+          condition: string | null
           location: string | null
           images: string[] | null
           status: string
+          admin_status: 'pending' | 'approved' | 'rejected'
           expires_at: string | null
           created_at: string
           updated_at: string
@@ -69,9 +87,11 @@ export type Database = {
           description?: string | null
           price?: number | null
           category: string
+          condition?: string | null
           location?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -83,9 +103,11 @@ export type Database = {
           description?: string | null
           price?: number | null
           category?: string
+          condition?: string | null
           location?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -102,7 +124,10 @@ export type Database = {
           salary_min: number | null
           salary_max: number | null
           job_type: string
+          category: string | null
+          images: string[] | null
           status: string
+          admin_status: 'pending' | 'approved' | 'rejected'
           expires_at: string | null
           created_at: string
           updated_at: string
@@ -117,7 +142,10 @@ export type Database = {
           salary_min?: number | null
           salary_max?: number | null
           job_type: string
+          category?: string | null
+          images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -132,7 +160,10 @@ export type Database = {
           salary_min?: number | null
           salary_max?: number | null
           job_type?: string
+          category?: string | null
+          images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -145,7 +176,7 @@ export type Database = {
           title: string
           description: string | null
           price: number | null
-          property_type: string
+          property_type: 'sale' | 'rent' | 'room-rental'
           bedrooms: number | null
           bathrooms: number | null
           square_feet: number | null
@@ -155,6 +186,7 @@ export type Database = {
           zip_code: string | null
           images: string[] | null
           status: string
+          admin_status: 'pending' | 'approved' | 'rejected'
           expires_at: string | null
           created_at: string
           updated_at: string
@@ -165,7 +197,7 @@ export type Database = {
           title: string
           description?: string | null
           price?: number | null
-          property_type: string
+          property_type: 'sale' | 'rent' | 'room-rental'
           bedrooms?: number | null
           bathrooms?: number | null
           square_feet?: number | null
@@ -175,6 +207,7 @@ export type Database = {
           zip_code?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -185,7 +218,7 @@ export type Database = {
           title?: string
           description?: string | null
           price?: number | null
-          property_type?: string
+          property_type?: 'sale' | 'rent' | 'room-rental'
           bedrooms?: number | null
           bathrooms?: number | null
           square_feet?: number | null
@@ -195,6 +228,7 @@ export type Database = {
           zip_code?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -216,8 +250,9 @@ export type Database = {
           zip_code: string | null
           cover_image: string | null
           logo: string | null
-          hours: Record<string, unknown> | null
+          hours: BusinessHours | null
           status: string
+          admin_status: 'pending' | 'approved' | 'rejected'
           created_at: string
           updated_at: string
         }
@@ -236,8 +271,9 @@ export type Database = {
           zip_code?: string | null
           cover_image?: string | null
           logo?: string | null
-          hours?: Record<string, unknown> | null
+          hours?: BusinessHours | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           created_at?: string
           updated_at?: string
         }
@@ -256,8 +292,9 @@ export type Database = {
           zip_code?: string | null
           cover_image?: string | null
           logo?: string | null
-          hours?: Record<string, unknown> | null
+          hours?: BusinessHours | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           created_at?: string
           updated_at?: string
         }
@@ -289,6 +326,175 @@ export type Database = {
           description?: string
           stripe_payment_intent_id?: string | null
           created_at?: string
+        }
+      }
+      admin_actions: {
+        Row: {
+          id: number
+          admin_user_id: string
+          action_type: string
+          target_type: string
+          target_id: string
+          details: Record<string, unknown> | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          admin_user_id: string
+          action_type: string
+          target_type: string
+          target_id: string
+          details?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          admin_user_id?: string
+          action_type?: string
+          target_type?: string
+          target_id?: string
+          details?: Record<string, unknown> | null
+          created_at?: string
+        }
+      }
+      content_reports: {
+        Row: {
+          id: number
+          reporter_user_id: string
+          content_type: string
+          content_id: string
+          reason: string
+          description: string | null
+          status: 'pending' | 'resolved' | 'dismissed'
+          admin_notes: string | null
+          admin_user_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          reporter_user_id: string
+          content_type: string
+          content_id: string
+          reason: string
+          description?: string | null
+          status?: 'pending' | 'resolved' | 'dismissed'
+          admin_notes?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          reporter_user_id?: string
+          content_type?: string
+          content_id?: string
+          reason?: string
+          description?: string | null
+          status?: 'pending' | 'resolved' | 'dismissed'
+          admin_notes?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      menu_items: {
+        Row: {
+          id: number
+          business_profile_id: number
+          name: string
+          description: string | null
+          price: number | null
+          category: string
+          available: boolean
+          image_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          business_profile_id: number
+          name: string
+          description?: string | null
+          price?: number | null
+          category: string
+          available?: boolean
+          image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          business_profile_id?: number
+          name?: string
+          description?: string | null
+          price?: number | null
+          category?: string
+          available?: boolean
+          image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      business_reviews: {
+        Row: {
+          id: number
+          business_profile_id: number
+          user_id: string
+          rating: number
+          comment: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          business_profile_id: number
+          user_id: string
+          rating: number
+          comment?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          business_profile_id?: number
+          user_id?: string
+          rating?: number
+          comment?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      business_posts: {
+        Row: {
+          id: number
+          business_profile_id: number
+          title: string
+          content: string
+          post_type: string
+          featured: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          business_profile_id: number
+          title: string
+          content: string
+          post_type?: string
+          featured?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          business_profile_id?: number
+          title?: string
+          content?: string
+          post_type?: string
+          featured?: boolean
+          created_at?: string
+          updated_at?: string
         }
       }
     }

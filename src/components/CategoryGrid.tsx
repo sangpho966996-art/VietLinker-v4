@@ -83,11 +83,6 @@ export default function CategoryGrid() {
                     <h3 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors">
                       {category.title}
                     </h3>
-                    {category.requiresCredits && (
-                      <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-1">
-                        Cần credits
-                      </span>
-                    )}
                   </div>
                 </div>
                 
@@ -115,29 +110,6 @@ export default function CategoryGrid() {
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Cách hoạt động
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-              <div className="text-left">
-                <h4 className="font-semibold text-gray-900 mb-2">Người dùng thường</h4>
-                <p className="text-sm text-gray-600">
-                  Mua credits để đăng tin trong Marketplace, Việc làm, Bất động sản. 
-                  Mỗi tin = 1 credit/ngày.
-                </p>
-              </div>
-              <div className="text-left">
-                <h4 className="font-semibold text-gray-900 mb-2">Doanh nghiệp</h4>
-                <p className="text-sm text-gray-600">
-                  Trả 50 credits một lần để có profile vĩnh viễn trong Nhà hàng & Dịch vụ. 
-                  Đăng tin không giới hạn.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   )
