@@ -48,22 +48,6 @@ export default function EditMarketplacePage() {
     { value: 'poor', label: 'Cũ' }
   ]
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      
-      if (userError || !user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(user)
-      await loadPost(user.id)
-    }
-
-    getUser()
-  }, [router, postId, loadPost])
-
   const loadPost = useCallback(async (userId: string) => {
     try {
       const { data: post, error } = await supabase
@@ -91,6 +75,22 @@ export default function EditMarketplacePage() {
       setError('Không thể tải thông tin tin đăng')
     }
   }, [postId])
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        router.push('/login')
+        return
+      }
+
+      setUser(user)
+      await loadPost(user.id)
+    }
+
+    getUser()
+  }, [router, postId, loadPost])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target

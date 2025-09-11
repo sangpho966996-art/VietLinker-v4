@@ -23,6 +23,7 @@ export default function CreateJobPage() {
     category: '',
   })
   const [showTitleSuggestions, setShowTitleSuggestions] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
   const [images, setImages] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -95,6 +96,296 @@ export default function CreateJobPage() {
     return suggestions[category] || []
   }
 
+  interface JobTemplate {
+    title: string
+    description: string
+    salary_min: string
+    salary_max: string
+    job_type: string
+    company_placeholder: string
+  }
+
+  const getJobTemplates = (category: string): JobTemplate[] => {
+    const templates: Record<string, JobTemplate[]> = {
+      'nails': [
+        {
+          title: 'Tuyển Thợ Nails Có Kinh Nghiệm - Lương Cao + Tip',
+          description: `🔍 TUYỂN THỢ NAILS CÓ KINH NGHIỆM
+
+📋 MÔ TẢ CÔNG VIỆC:
+• Làm nails, pedicure, manicure chuyên nghiệp
+• Phục vụ khách hàng thân thiện, tận tình
+• Giữ gìn vệ sinh và sạch sẽ nơi làm việc
+• Hỗ trợ đồng nghiệp khi cần thiết
+
+✅ YÊU CẦU:
+• Có kinh nghiệm làm nails tối thiểu 2 năm
+• Biết tiếng Anh cơ bản để giao tiếp với khách
+• Thái độ tích cực, chăm chỉ, trung thực
+• Có thể làm việc cuối tuần
+
+💰 QUYỀN LỢI:
+• Lương $18-25/giờ + tip hậu hĩnh (trung bình $200-300/ngày)
+• Làm việc trong môi trường thân thiện, vui vẻ
+• Có cơ hội thăng tiến lên vị trí quản lý
+• Nghỉ chủ nhật hoặc thứ 2 (tùy chọn)
+• Được training kỹ thuật mới
+
+📞 LIÊN HỆ NGAY:
+• Gọi: [SỐ ĐIỆN THOẠI]
+• Text: [SỐ ĐIỆN THOẠI] 
+• Đến trực tiếp: [ĐỊA CHỈ TIỆM]`,
+          salary_min: '18',
+          salary_max: '25',
+          job_type: 'full-time',
+          company_placeholder: 'VD: Happy Nails Salon'
+        },
+        {
+          title: 'Tuyển Receptionist Tiệm Nails - Part Time',
+          description: `📞 TUYỂN RECEPTIONIST TIỆM NAILS
+
+📋 MÔ TẢ CÔNG VIỆC:
+• Tiếp đón khách hàng, đặt lịch hẹn
+• Thu ngân, xử lý thanh toán
+• Trả lời điện thoại, tư vấn dịch vụ
+• Hỗ trợ thợ nails khi cần thiết
+• Giữ gìn sạch sẽ khu vực tiếp đón
+
+✅ YÊU CẦU:
+• Tiếng Anh tốt (nói và viết)
+• Thái độ thân thiện, chuyên nghiệp
+• Có kinh nghiệm customer service (ưu tiên)
+• Biết sử dụng máy tính cơ bản
+
+💰 QUYỀN LỢI:
+• Lương $15-18/giờ
+• Giờ làm việc linh hoạt
+• Môi trường làm việc thoải mái
+• Được training đầy đủ
+
+📞 LIÊN HỆ:
+• Call/Text: [SỐ ĐIỆN THOẠI]
+• Email: [EMAIL]`,
+          salary_min: '15',
+          salary_max: '18',
+          job_type: 'part-time',
+          company_placeholder: 'VD: Luxury Nails Spa'
+        }
+      ],
+      'restaurant': [
+        {
+          title: 'Tuyển Đầu Bếp Việt Nam - Kinh Nghiệm Phở/Bún',
+          description: `👨‍🍳 TUYỂN ĐẦU BẾP VIỆT NAM
+
+📋 MÔ TẢ CÔNG VIỆC:
+• Nấu các món ăn Việt Nam truyền thống (phở, bún, cơm)
+• Chuẩn bị nguyên liệu, gia vị theo công thức
+• Đảm bảo chất lượng và vệ sinh thực phẩm
+• Phối hợp với team bếp và phục vụ
+• Kiểm soát tồn kho và đặt hàng nguyên liệu
+
+✅ YÊU CẦU:
+• Có kinh nghiệm nấu ăn Việt Nam tối thiểu 3 năm
+• Biết nấu phở, bún bò Huế, cơm tấm
+• Biết tiếng Anh cơ bản
+• Có thể làm việc cuối tuần và ngày lễ
+• Sức khỏe tốt, chịu được áp lực cao
+
+💰 QUYỀN LỢI:
+• Lương $18-22/giờ (tùy kinh nghiệm)
+• Được ăn uống tại chỗ
+• Overtime pay x1.5
+• Môi trường làm việc năng động
+• Cơ hội thăng tiến lên head chef
+
+📞 LIÊN HỆ NGAY:
+• Gọi: [SỐ ĐIỆN THOẠI]
+• Đến trực tiếp: [ĐỊA CHỈ NHÀ HÀNG]`,
+          salary_min: '18',
+          salary_max: '22',
+          job_type: 'full-time',
+          company_placeholder: 'VD: Phở Saigon Restaurant'
+        },
+        {
+          title: 'Tuyển Phục Vụ Nhà Hàng - Biết Tiếng Việt/Anh',
+          description: `🍽️ TUYỂN PHỤC VỤ NHÀ HÀNG
+
+📋 MÔ TẢ CÔNG VIỆC:
+• Tiếp đón và phục vụ khách hàng
+• Nhận order, tư vấn món ăn
+• Dọn dẹp bàn ghế, khu vực phục vụ
+• Hỗ trợ thu ngân khi cần
+• Đảm bảo khách hàng hài lòng
+
+✅ YÊU CẦU:
+• Biết tiếng Việt và tiếng Anh
+• Thái độ thân thiện, nhiệt tình
+• Có kinh nghiệm phục vụ (ưu tiên)
+• Có thể làm việc cuối tuần
+• Nhanh nhẹn, chịu được áp lực
+
+💰 QUYỀN LỢI:
+• Lương $15-17/giờ + tips
+• Được ăn uống tại chỗ
+• Giờ làm việc linh hoạt
+• Môi trường thân thiện
+• Thưởng cuối năm
+
+📞 LIÊN HỆ:
+• Call/Text: [SỐ ĐIỆN THOẠI]
+• Đến trực tiếp: [ĐỊA CHỈ]`,
+          salary_min: '15',
+          salary_max: '17',
+          job_type: 'part-time',
+          company_placeholder: 'VD: Bún Bò Huế Sài Gòn'
+        }
+      ],
+      'medical': [
+        {
+          title: 'Tuyển Medical Assistant - Phòng Khám Đa Khoa',
+          description: `⚕️ TUYỂN MEDICAL ASSISTANT
+
+📋 MÔ TẢ CÔNG VIỆC:
+• Hỗ trợ bác sĩ trong khám chữa bệnh
+• Đo huyết áp, cân nặng, chiều cao bệnh nhân
+• Chuẩn bị dụng cụ y tế, phòng khám
+• Hướng dẫn bệnh nhân về thuốc và chế độ
+• Cập nhật hồ sơ bệnh án điện tử
+
+✅ YÊU CẦU:
+• Có chứng chỉ Medical Assistant
+• Biết tiếng Việt và tiếng Anh thành thạo
+• Có kinh nghiệm làm việc trong phòng khám
+• Kỹ năng giao tiếp tốt với bệnh nhân
+• Biết sử dụng phần mềm EMR
+
+💰 QUYỀN LỢI:
+• Lương $18-22/giờ
+• Bảo hiểm y tế đầy đủ
+• 401K matching
+• Paid time off
+• Môi trường làm việc chuyên nghiệp
+• Cơ hội học hỏi và phát triển
+
+📞 LIÊN HỆ:
+• Email resume: [EMAIL]
+• Fax: [FAX NUMBER]
+• Gọi: [SỐ ĐIỆN THOẠI]`,
+          salary_min: '18',
+          salary_max: '22',
+          job_type: 'full-time',
+          company_placeholder: 'VD: ABC Medical Clinic'
+        },
+        {
+          title: 'Tuyển Receptionist Phòng Khám - Biết Tiếng Việt',
+          description: `📋 TUYỂN RECEPTIONIST PHÒNG KHÁM
+
+📋 MÔ TẢ CÔNG VIỆC:
+• Tiếp đón bệnh nhân, đặt lịch hẹn
+• Xử lý bảo hiểm và thanh toán
+• Trả lời điện thoại, tư vấn dịch vụ
+• Cập nhật thông tin bệnh nhân
+• Hỗ trợ bác sĩ và y tá khi cần
+
+✅ YÊU CẦU:
+• Biết tiếng Việt và tiếng Anh thành thạo
+• Có kinh nghiệm customer service
+• Biết sử dụng máy tính và phần mềm y tế
+• Thái độ thân thiện, kiên nhẫn
+• Có thể làm việc trong môi trường y tế
+
+💰 QUYỀN LỢI:
+• Lương $16-19/giờ
+• Bảo hiểm y tế
+• Paid sick leave
+• Môi trường làm việc ổn định
+• Training về quy trình y tế
+
+📞 LIÊN HỆ:
+• Email: [EMAIL]
+• Gọi: [SỐ ĐIỆN THOẠI]
+• Đến trực tiếp: [ĐỊA CHỈ PHÒNG KHÁM]`,
+          salary_min: '16',
+          salary_max: '19',
+          job_type: 'full-time',
+          company_placeholder: 'VD: Phòng Khám Gia Đình'
+        }
+      ],
+      'office-insurance': [
+        {
+          title: 'Tuyển Insurance Agent - Cộng Đồng Việt Nam',
+          description: `🛡️ TUYỂN INSURANCE AGENT
+
+📋 MÔ TẢ CÔNG VIỆC:
+• Tư vấn bảo hiểm cho cộng đồng Việt Nam
+• Bán các sản phẩm: auto, home, life, health insurance
+• Xử lý claims và customer service
+• Xây dựng mối quan hệ với khách hàng
+• Tham gia các sự kiện cộng đồng
+
+✅ YÊU CẦU:
+• Có license bảo hiểm California (hoặc sẵn sàng học)
+• Biết tiếng Việt và tiếng Anh thành thạo
+• Kỹ năng bán hàng và giao tiếp tốt
+• Có kinh nghiệm sales (ưu tiên)
+• Có xe và bằng lái hợp lệ
+
+💰 QUYỀN LỢI:
+• Base salary + commission (unlimited earning)
+• $40,000-$80,000+ năm đầu
+• Training đầy đủ về sản phẩm
+• Leads được cung cấp
+• Thưởng performance
+• Benefits package
+
+📞 LIÊN HỆ:
+• Email: [EMAIL]
+• Call: [SỐ ĐIỆN THOẠI]
+• Office: [ĐỊA CHỈ VĂN PHÒNG]`,
+          salary_min: '40000',
+          salary_max: '80000',
+          job_type: 'full-time',
+          company_placeholder: 'VD: Viet Insurance Services'
+        },
+        {
+          title: 'Tuyển Customer Service Rep - Văn Phòng Bảo Hiểm',
+          description: `📞 TUYỂN CUSTOMER SERVICE REPRESENTATIVE
+
+📋 MÔ TẢ CÔNG VIỆC:
+• Hỗ trợ khách hàng qua điện thoại và email
+• Xử lý claims và thay đổi policy
+• Giải thích các sản phẩm bảo hiểm
+• Cập nhật thông tin khách hàng
+• Hỗ trợ agent trong công việc bán hàng
+
+✅ YÊU CẦU:
+• Biết tiếng Việt và tiếng Anh
+• Có kinh nghiệm customer service
+• Kỹ năng giao tiếp tốt qua điện thoại
+• Biết sử dụng máy tính thành thạo
+• Kiên nhẫn và tỉ mỉ trong công việc
+
+💰 QUYỀN LỢI:
+• Lương $17-20/giờ
+• Bảo hiểm y tế và dental
+• 401K plan
+• Paid vacation
+• Môi trường làm việc văn phòng
+• Cơ hội thăng tiến
+
+📞 LIÊN HỆ:
+• Email resume: [EMAIL]
+• Call: [SỐ ĐIỆN THOẠI]`,
+          salary_min: '17',
+          salary_max: '20',
+          job_type: 'full-time',
+          company_placeholder: 'VD: ABC Insurance Agency'
+        }
+      ]
+    }
+    return templates[category] || []
+  }
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -129,6 +420,7 @@ export default function CreateJobPage() {
     
     if (name === 'category') {
       setShowTitleSuggestions(value !== '')
+      setShowTemplates(value !== '')
     }
   }
 
@@ -137,6 +429,19 @@ export default function CreateJobPage() {
       ...prev,
       title: suggestion
     }))
+    setShowTitleSuggestions(false)
+  }
+
+  const handleTemplateSelect = (template: JobTemplate) => {
+    setFormData(prev => ({
+      ...prev,
+      title: template.title,
+      description: template.description,
+      salary_min: template.salary_min,
+      salary_max: template.salary_max,
+      job_type: template.job_type
+    }))
+    setShowTemplates(false)
     setShowTitleSuggestions(false)
   }
 
@@ -263,7 +568,7 @@ export default function CreateJobPage() {
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2">💡 Mẹo đăng tin hiệu quả:</h3>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Viết tiêu đề rõ ràng: "Tuyển thợ nails có kinh nghiệm - $15-20/giờ"</li>
+                <li>• Viết tiêu đề rõ ràng: &quot;Tuyển thợ nails có kinh nghiệm - $15-20/giờ&quot;</li>
                 <li>• Ghi rõ yêu cầu: kinh nghiệm, giờ làm việc, ngôn ngữ</li>
                 <li>• Nêu quyền lợi: lương, tip, bảo hiểm, nghỉ phép</li>
                 <li>• Thêm ảnh tiệm/văn phòng để thu hút ứng viên</li>
@@ -364,6 +669,41 @@ export default function CreateJobPage() {
                 )}
               </div>
 
+              {showTemplates && formData.category && getJobTemplates(formData.category).length > 0 && (
+                <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-3 flex items-center">
+                    ✨ Mẫu tin đăng có sẵn - Chỉ cần sửa tên tiệm là đăng ngay!
+                  </h3>
+                  <div className="space-y-3">
+                    {getJobTemplates(formData.category).map((template, index) => (
+                      <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 text-sm mb-1">{template.title}</h4>
+                            <p className="text-xs text-gray-600 mb-2">
+                              💰 ${template.salary_min}-${template.salary_max}/giờ • {template.job_type === 'full-time' ? 'Toàn thời gian' : 'Bán thời gian'}
+                            </p>
+                            <p className="text-xs text-gray-500 line-clamp-2">
+                              {template.description.substring(0, 100)}...
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleTemplateSelect(template)}
+                            className="ml-3 px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+                          >
+                            📝 Dùng mẫu này
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-blue-700 mt-3">
+                    💡 <strong>Lưu ý:</strong> Sau khi chọn mẫu, bạn chỉ cần thay đổi tên tiệm, địa chỉ, số điện thoại là có thể đăng tin ngay!
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label htmlFor="job_type" className="block text-sm font-medium text-gray-700 mb-2">
                   Loại công việc *
@@ -428,7 +768,7 @@ export default function CreateJobPage() {
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                💡 Mẹo: Ghi rõ "$/giờ + tip" hoặc "$/tháng + benefits" để thu hút ứng viên
+                💡 Mẹo: Ghi rõ &quot;$/giờ + tip&quot; hoặc &quot;$/tháng + benefits&quot; để thu hút ứng viên
               </p>
 
               <div>
