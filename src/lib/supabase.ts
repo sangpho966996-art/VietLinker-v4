@@ -34,6 +34,7 @@ export type Database = {
           address: string | null
           avatar_url: string | null
           credits: number
+          role: 'user' | 'admin' | 'moderator'
           created_at: string
           updated_at: string
         }
@@ -45,6 +46,7 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           credits?: number
+          role?: 'user' | 'admin' | 'moderator'
           created_at?: string
           updated_at?: string
         }
@@ -56,6 +58,7 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           credits?: number
+          role?: 'user' | 'admin' | 'moderator'
           created_at?: string
           updated_at?: string
         }
@@ -72,6 +75,7 @@ export type Database = {
           location: string | null
           images: string[] | null
           status: string
+          admin_status: 'pending' | 'approved' | 'rejected'
           expires_at: string | null
           created_at: string
           updated_at: string
@@ -87,6 +91,7 @@ export type Database = {
           location?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -102,6 +107,7 @@ export type Database = {
           location?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -121,6 +127,7 @@ export type Database = {
           category: string | null
           images: string[] | null
           status: string
+          admin_status: 'pending' | 'approved' | 'rejected'
           expires_at: string | null
           created_at: string
           updated_at: string
@@ -138,6 +145,7 @@ export type Database = {
           category?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -155,6 +163,7 @@ export type Database = {
           category?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -177,6 +186,7 @@ export type Database = {
           zip_code: string | null
           images: string[] | null
           status: string
+          admin_status: 'pending' | 'approved' | 'rejected'
           expires_at: string | null
           created_at: string
           updated_at: string
@@ -197,6 +207,7 @@ export type Database = {
           zip_code?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -217,6 +228,7 @@ export type Database = {
           zip_code?: string | null
           images?: string[] | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           expires_at?: string | null
           created_at?: string
           updated_at?: string
@@ -240,6 +252,7 @@ export type Database = {
           logo: string | null
           hours: BusinessHours | null
           status: string
+          admin_status: 'pending' | 'approved' | 'rejected'
           created_at: string
           updated_at: string
         }
@@ -260,6 +273,7 @@ export type Database = {
           logo?: string | null
           hours?: BusinessHours | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           created_at?: string
           updated_at?: string
         }
@@ -280,6 +294,7 @@ export type Database = {
           logo?: string | null
           hours?: BusinessHours | null
           status?: string
+          admin_status?: 'pending' | 'approved' | 'rejected'
           created_at?: string
           updated_at?: string
         }
@@ -311,6 +326,76 @@ export type Database = {
           description?: string
           stripe_payment_intent_id?: string | null
           created_at?: string
+        }
+      }
+      admin_actions: {
+        Row: {
+          id: number
+          admin_user_id: string
+          action_type: string
+          target_type: string
+          target_id: string
+          details: any | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          admin_user_id: string
+          action_type: string
+          target_type: string
+          target_id: string
+          details?: any | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          admin_user_id?: string
+          action_type?: string
+          target_type?: string
+          target_id?: string
+          details?: any | null
+          created_at?: string
+        }
+      }
+      content_reports: {
+        Row: {
+          id: number
+          reporter_user_id: string
+          content_type: string
+          content_id: string
+          reason: string
+          description: string | null
+          status: 'pending' | 'resolved' | 'dismissed'
+          admin_notes: string | null
+          admin_user_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          reporter_user_id: string
+          content_type: string
+          content_id: string
+          reason: string
+          description?: string | null
+          status?: 'pending' | 'resolved' | 'dismissed'
+          admin_notes?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          reporter_user_id?: string
+          content_type?: string
+          content_id?: string
+          reason?: string
+          description?: string | null
+          status?: 'pending' | 'resolved' | 'dismissed'
+          admin_notes?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          updated_at?: string
         }
       }
       menu_items: {

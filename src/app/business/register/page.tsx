@@ -59,6 +59,7 @@ export default function BusinessRegisterPage() {
           city: formData.city,
           state: formData.state,
           zip_code: formData.zipCode,
+          admin_status: 'pending',
           status: 'active'
         })
 

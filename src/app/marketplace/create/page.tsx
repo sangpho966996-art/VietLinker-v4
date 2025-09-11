@@ -121,6 +121,7 @@ export default function CreateMarketplacePage() {
           category: formData.category,
           location: formData.location,
           images: imageUrls,
+          admin_status: 'pending',
           expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         })
 

@@ -351,6 +351,7 @@ export default function CreateRealEstatePage() {
           state: formData.state,
           zip_code: formData.zip_code,
           images: imageUrls,
+          admin_status: 'pending',
           expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         })
 

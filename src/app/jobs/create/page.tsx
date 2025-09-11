@@ -500,6 +500,7 @@ export default function CreateJobPage() {
           job_type: formData.job_type,
           category: formData.category,
           images: imageUrls,
+          admin_status: 'pending',
           expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         })
 
