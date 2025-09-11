@@ -6,6 +6,20 @@ import AdminLayout from '@/components/admin/AdminLayout'
 
 export const dynamic = 'force-dynamic'
 
+interface AdminAction {
+  id: number
+  action_type: string
+  target_type: string
+  created_at: string
+  users?: {
+    email: string
+    full_name: string | null
+  } | {
+    email: string
+    full_name: string | null
+  }[]
+}
+
 interface AnalyticsData {
   totalUsers: number
   totalPosts: number
@@ -13,7 +27,7 @@ interface AnalyticsData {
   totalCredits: number
   newUsersThisMonth: number
   newPostsThisMonth: number
-  recentActions: any[]
+  recentActions: AdminAction[]
 }
 
 export default function AdminAnalytics() {
@@ -163,7 +177,7 @@ export default function AdminAnalytics() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-900">
-                        {action.users?.full_name || action.users?.email}
+                        {Array.isArray(action.users) ? (action.users[0]?.full_name || action.users[0]?.email) : (action.users?.full_name || action.users?.email)}
                       </p>
                       <p className="text-sm text-gray-500">
                         {action.action_type} - {action.target_type}

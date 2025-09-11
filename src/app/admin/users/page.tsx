@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import AdminLayout from '@/components/admin/AdminLayout'
 
@@ -22,11 +22,7 @@ export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'admin' | 'moderator'>('all')
 
-  useEffect(() => {
-    loadUsers()
-  }, [searchTerm, roleFilter])
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       let query = supabase
         .from('users')
@@ -50,7 +46,11 @@ export default function AdminUsers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchTerm, roleFilter])
+
+  useEffect(() => {
+    loadUsers()
+  }, [loadUsers])
 
   const handleRoleChange = async (userId: string, newRole: 'user' | 'admin' | 'moderator') => {
     try {
@@ -99,7 +99,7 @@ export default function AdminUsers() {
             <div>
               <select
                 value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value as any)}
+                onChange={(e) => setRoleFilter(e.target.value as 'all' | 'user' | 'admin' | 'moderator')}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 <option value="all">Tất cả roles</option>
@@ -162,7 +162,7 @@ export default function AdminUsers() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={user.role}
-                        onChange={(e) => handleRoleChange(user.id, e.target.value as any)}
+                        onChange={(e) => handleRoleChange(user.id, e.target.value as 'user' | 'admin' | 'moderator')}
                         className={`text-xs px-2 py-1 rounded-full font-semibold ${
                           user.role === 'admin' ? 'bg-red-100 text-red-800' :
                           user.role === 'moderator' ? 'bg-blue-100 text-blue-800' :

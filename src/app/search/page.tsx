@@ -2,9 +2,9 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { supabase, Database } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -12,17 +12,17 @@ interface SearchResult {
   id: string
   title: string
   description: string
-  price?: number
+  price?: number | null
   location: string
-  address?: string
-  city?: string
-  state?: string
+  address?: string | null
+  city?: string | null
+  state?: string | null
   type: 'marketplace' | 'job' | 'real_estate' | 'business'
-  image_url?: string
+  image_url?: string | null
   distance?: number
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') || ''
   const location = searchParams.get('location') || ''
@@ -56,7 +56,7 @@ export default function SearchPage() {
     return R * c
   }
 
-  const searchAll = async () => {
+  const searchAll = useCallback(async () => {
     setLoading(true)
     const allResults: SearchResult[] = []
 
@@ -69,13 +69,13 @@ export default function SearchPage() {
         .limit(20)
 
       if (marketplaceData) {
-        marketplaceData.forEach((item: any) => {
+        marketplaceData.forEach((item: Database['public']['Tables']['marketplace_posts']['Row']) => {
           allResults.push({
-            id: item.id,
-            title: item.title,
-            description: item.description,
+            id: item.id.toString(),
+            title: item.title || '',
+            description: item.description || '',
             price: item.price,
-            location: item.location,
+            location: item.location || '',
             type: 'marketplace',
             image_url: item.images?.[0]
           })
@@ -90,12 +90,12 @@ export default function SearchPage() {
         .limit(20)
 
       if (jobData) {
-        jobData.forEach((item: any) => {
+        jobData.forEach((item: Database['public']['Tables']['job_posts']['Row']) => {
           allResults.push({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            location: item.location,
+            id: item.id.toString(),
+            title: item.title || '',
+            description: item.description || '',
+            location: item.location || '',
             type: 'job'
           })
         })
@@ -109,13 +109,16 @@ export default function SearchPage() {
         .limit(20)
 
       if (realEstateData) {
-        realEstateData.forEach((item: any) => {
+        realEstateData.forEach((item: Database['public']['Tables']['real_estate_posts']['Row']) => {
           allResults.push({
-            id: item.id,
-            title: item.title,
-            description: item.description,
+            id: item.id.toString(),
+            title: item.title || '',
+            description: item.description || '',
             price: item.price,
-            location: item.location,
+            location: `${item.city || ''}, ${item.state || ''}`,
+            address: item.address,
+            city: item.city,
+            state: item.state,
             type: 'real_estate',
             image_url: item.images?.[0]
           })
@@ -129,12 +132,12 @@ export default function SearchPage() {
         .limit(20)
 
       if (businessData) {
-        businessData.forEach((item: any) => {
+        businessData.forEach((item: Database['public']['Tables']['business_profiles']['Row']) => {
           allResults.push({
-            id: item.id,
-            title: item.name,
-            description: item.description,
-            location: `${item.city}, ${item.state}`,
+            id: item.id.toString(),
+            title: item.business_name || '',
+            description: item.description || '',
+            location: `${item.city || ''}, ${item.state || ''}`,
             address: item.address,
             city: item.city,
             state: item.state,
@@ -163,7 +166,7 @@ export default function SearchPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [query, userLocation])
 
   useEffect(() => {
     const performSearch = async () => {
@@ -173,7 +176,7 @@ export default function SearchPage() {
       await searchAll()
     }
     performSearch()
-  }, [query, location])
+  }, [query, location, searchAll])
 
   const getResultLink = (result: SearchResult) => {
     switch (result.type) {
@@ -304,5 +307,20 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Đang tải...</p>
+        </div>
+      </div>
+    }>
+      <SearchPageContent />
+    </Suspense>
   )
 }

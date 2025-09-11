@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import AdminLayout from '@/components/admin/AdminLayout'
 
@@ -32,11 +32,7 @@ export default function AdminReports() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'resolved' | 'dismissed'>('pending')
 
-  useEffect(() => {
-    loadReports()
-  }, [filter])
-
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     try {
       let query = supabase
         .from('content_reports')
@@ -56,8 +52,8 @@ export default function AdminReports() {
       if (data) {
         const reportsWithUser = data.map(report => ({
           ...report,
-          reporter_name: (report.users as any)?.full_name || (report.users as any)?.email || 'Unknown User',
-          reporter_email: (report.users as any)?.email || ''
+          reporter_name: Array.isArray(report.users) ? (report.users[0]?.full_name || report.users[0]?.email || 'Unknown User') : ((report.users as { email: string; full_name: string | null })?.full_name || (report.users as { email: string; full_name: string | null })?.email || 'Unknown User'),
+          reporter_email: Array.isArray(report.users) ? report.users[0]?.email || '' : (report.users as { email: string; full_name: string | null })?.email || ''
         }))
         setReports(reportsWithUser)
       }
@@ -66,7 +62,11 @@ export default function AdminReports() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    loadReports()
+  }, [filter, loadReports])
 
   const handleResolveReport = async (reportId: number) => {
     try {

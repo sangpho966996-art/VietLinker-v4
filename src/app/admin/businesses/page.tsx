@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import AdminLayout from '@/components/admin/AdminLayout'
 
@@ -30,11 +30,7 @@ export default function AdminBusinesses() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
 
-  useEffect(() => {
-    loadBusinesses()
-  }, [filter])
-
-  const loadBusinesses = async () => {
+  const loadBusinesses = useCallback(async () => {
     try {
       let query = supabase
         .from('business_profiles')
@@ -51,11 +47,14 @@ export default function AdminBusinesses() {
       const { data } = await query
 
       if (data) {
-        const businessesWithUser = data.map(business => ({
-          ...business,
-          user_email: Array.isArray(business.users) ? business.users[0]?.email || '' : (business.users as any)?.email || '',
-          user_name: Array.isArray(business.users) ? (business.users[0]?.full_name || business.users[0]?.email || 'Unknown User') : ((business.users as any)?.full_name || (business.users as any)?.email || 'Unknown User')
-        }))
+        const businessesWithUser = data.map(business => {
+          const user = Array.isArray(business.users) ? business.users[0] : business.users;
+          return {
+            ...business,
+            user_email: user?.email || '',
+            user_name: user?.full_name || user?.email || 'Unknown User'
+          };
+        })
         setBusinesses(businessesWithUser)
       }
     } catch (error) {
@@ -63,7 +62,11 @@ export default function AdminBusinesses() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    loadBusinesses()
+  }, [loadBusinesses])
 
   const handleApproveBusiness = async (business: BusinessProfile) => {
     try {

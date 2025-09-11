@@ -335,7 +335,7 @@ export type Database = {
           action_type: string
           target_type: string
           target_id: string
-          details: any | null
+          details: Record<string, unknown> | null
           created_at: string
         }
         Insert: {
@@ -344,7 +344,7 @@ export type Database = {
           action_type: string
           target_type: string
           target_id: string
-          details?: any | null
+          details?: Record<string, unknown> | null
           created_at?: string
         }
         Update: {
@@ -353,7 +353,7 @@ export type Database = {
           action_type?: string
           target_type?: string
           target_id?: string
-          details?: any | null
+          details?: Record<string, unknown> | null
           created_at?: string
         }
       }

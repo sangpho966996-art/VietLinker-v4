@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import AdminLayout from '@/components/admin/AdminLayout'
 
@@ -30,11 +30,7 @@ export default function AdminPosts() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
 
-  useEffect(() => {
-    loadPosts()
-  }, [filter])
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       const tables = ['marketplace_posts', 'job_posts', 'real_estate_posts', 'business_profiles']
       const allPosts: PendingPost[] = []
@@ -58,8 +54,8 @@ export default function AdminPosts() {
           const postsWithTable = data.map(post => ({
             ...post,
             table_name: table,
-            user_email: (post.users as any)?.email || '',
-            user_name: (post.users as any)?.full_name || (post.users as any)?.email || 'Unknown User'
+            user_email: Array.isArray(post.users) ? post.users[0]?.email || '' : (post.users as { email: string; full_name: string | null })?.email || '',
+            user_name: Array.isArray(post.users) ? (post.users[0]?.full_name || post.users[0]?.email || 'Unknown User') : ((post.users as { email: string; full_name: string | null })?.full_name || (post.users as { email: string; full_name: string | null })?.email || 'Unknown User')
           }))
           allPosts.push(...postsWithTable)
         }
@@ -72,7 +68,11 @@ export default function AdminPosts() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    loadPosts()
+  }, [filter, loadPosts])
 
   const handleApprovePost = async (post: PendingPost) => {
     try {

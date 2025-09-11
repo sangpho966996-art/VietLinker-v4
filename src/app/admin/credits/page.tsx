@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AdminLayout from '@/components/admin/AdminLayout'
@@ -30,7 +30,7 @@ interface CreditTransaction {
   }[]
 }
 
-export default function AdminCredits() {
+function AdminCreditsContent() {
   const searchParams = useSearchParams()
   const selectedUserId = searchParams.get('user')
   
@@ -278,9 +278,9 @@ export default function AdminCredits() {
                     <tr key={transaction.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {(transaction.users as any)?.full_name || (transaction.users as any)?.email}
+                          {Array.isArray(transaction.users) ? (transaction.users[0]?.full_name || transaction.users[0]?.email) : (transaction.users?.full_name || transaction.users?.email)}
                         </div>
-                        <div className="text-sm text-gray-500">{(transaction.users as any)?.email}</div>
+                        <div className="text-sm text-gray-500">{Array.isArray(transaction.users) ? transaction.users[0]?.email : transaction.users?.email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`text-sm font-medium ${
@@ -307,5 +307,22 @@ export default function AdminCredits() {
         </div>
       </div>
     </AdminLayout>
+  )
+}
+
+export default function AdminCredits() {
+  return (
+    <Suspense fallback={
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Đang tải...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    }>
+      <AdminCreditsContent />
+    </Suspense>
   )
 }
