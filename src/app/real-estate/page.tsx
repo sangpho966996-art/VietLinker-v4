@@ -120,7 +120,7 @@ export default function RealEstatePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">V</span>
                 </div>
                 <span className="text-xl font-bold text-gray-900">VietLinker</span>
@@ -139,7 +139,7 @@ export default function RealEstatePage() {
       </div>
 
       {/* Hero Section */}
-      <div className="bg-green-600 text-white py-12">
+      <div className="bg-blue-600 text-white py-12">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold mb-4">Bất động sản VietLinker</h1>
           <p className="text-xl mb-8">Mua bán, cho thuê bất động sản trong cộng đồng Việt Nam tại Mỹ</p>
@@ -159,7 +159,7 @@ export default function RealEstatePage() {
                 id="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Tìm kiếm theo địa chỉ, tiêu đề..."
               />
             </div>
@@ -171,7 +171,7 @@ export default function RealEstatePage() {
                 id="property-type"
                 value={selectedPropertyType}
                 onChange={(e) => setSelectedPropertyType(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {propertyTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -186,7 +186,7 @@ export default function RealEstatePage() {
                 id="price-range"
                 value={priceRange}
                 onChange={(e) => setPriceRange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {priceRanges.map(range => (
                   <option key={range.value} value={range.value}>{range.label}</option>
@@ -199,7 +199,7 @@ export default function RealEstatePage() {
         {/* Posts Grid */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Đang tải tin đăng...</p>
           </div>
         ) : error ? (
@@ -230,7 +230,7 @@ export default function RealEstatePage() {
                     </div>
                   )}
                   <div className="absolute top-2 right-2">
-                    <span className="bg-green-600 text-white px-2 py-1 rounded text-xs">
+                    <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
                       {getPropertyTypeLabel(post.property_type)}
                     </span>
                   </div>
@@ -242,7 +242,7 @@ export default function RealEstatePage() {
                   <p className="text-gray-600 text-sm mb-3 line-clamp-3">{post.description}</p>
                   
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-green-600 font-bold text-lg">
+                    <span className="text-blue-600 font-bold text-lg">
                       {formatPrice(post.price)}
                     </span>
                   </div>
@@ -261,7 +261,7 @@ export default function RealEstatePage() {
                     <span>{formatDate(post.created_at)}</span>
                     <Link 
                       href={`/real-estate/${post.id}`}
-                      className="text-green-600 hover:text-green-700 font-medium"
+                      className="text-blue-600 hover:text-blue-700 font-medium"
                     >
                       Xem chi tiết →
                     </Link>
@@ -277,7 +277,7 @@ export default function RealEstatePage() {
           <div className="bg-white rounded-lg shadow-md p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Bạn muốn đăng tin bất động sản?</h2>
             <p className="text-gray-600 mb-6">Đăng tin mua bán, cho thuê bất động sản của bạn ngay hôm nay</p>
-            <Link href="/real-estate/create" className="btn btn-primary bg-green-600 hover:bg-green-700">
+            <Link href="/real-estate/create" className="btn btn-primary bg-blue-600 hover:bg-blue-700">
               Đăng tin ngay
             </Link>
           </div>
