@@ -373,6 +373,38 @@ export type Database = {
           updated_at?: string
         }
       }
+      business_posts: {
+        Row: {
+          id: number
+          business_profile_id: number
+          title: string
+          content: string
+          post_type: string
+          featured: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          business_profile_id: number
+          title: string
+          content: string
+          post_type?: string
+          featured?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          business_profile_id?: number
+          title?: string
+          content?: string
+          post_type?: string
+          featured?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }
