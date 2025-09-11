@@ -40,12 +40,6 @@ export default function MarketplaceDetailPage() {
     { value: 'other', label: 'Khác' }
   ]
 
-  useEffect(() => {
-    if (postId) {
-      loadPost()
-    }
-  }, [postId, loadPost])
-
   const loadPost = useCallback(async () => {
     try {
       setLoading(true)
@@ -100,6 +94,12 @@ export default function MarketplaceDetailPage() {
       setLoading(false)
     }
   }, [postId])
+
+  useEffect(() => {
+    if (postId) {
+      loadPost()
+    }
+  }, [postId, loadPost])
 
   const formatPrice = (price: number | null) => {
     if (!price) return 'Liên hệ'
