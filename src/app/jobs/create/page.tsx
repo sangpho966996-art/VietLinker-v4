@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
 import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -19,7 +20,9 @@ export default function CreateJobPage() {
     salary_min: '',
     salary_max: '',
     job_type: '',
+    category: '',
   })
+  const [images, setImages] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -29,6 +32,16 @@ export default function CreateJobPage() {
     { value: 'part-time', label: 'Bán thời gian' },
     { value: 'contract', label: 'Hợp đồng' },
     { value: 'internship', label: 'Thực tập' }
+  ]
+
+  const jobCategories = [
+    { value: 'nails', label: 'Tiệm Nails' },
+    { value: 'restaurant', label: 'Nhà hàng' },
+    { value: 'office-tax', label: 'Văn phòng Thuế' },
+    { value: 'office-insurance', label: 'Văn phòng Bảo hiểm' },
+    { value: 'medical', label: 'Y tế/Bác sĩ' },
+    { value: 'retail', label: 'Bán lẻ' },
+    { value: 'other', label: 'Khác' }
   ]
 
   useEffect(() => {
@@ -64,6 +77,18 @@ export default function CreateJobPage() {
     }))
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const fileList = Array.from(e.target.files)
+      if (fileList.length > 5) {
+        setError('Tối đa 5 ảnh')
+        return
+      }
+      setImages(fileList)
+      setError(null)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -80,9 +105,18 @@ export default function CreateJobPage() {
         return
       }
 
-      if (!formData.title || !formData.description || !formData.job_type) {
+      if (!formData.title || !formData.description || !formData.job_type || !formData.category) {
         setError('Vui lòng điền đầy đủ thông tin bắt buộc')
         return
+      }
+
+      const imageUrls: string[] = []
+      for (const image of images) {
+        const imagePath = generateGalleryPath(user.id, image.name)
+        const uploadResult = await uploadImage(image, 'business-images', imagePath)
+        if (uploadResult.success && uploadResult.url) {
+          imageUrls.push(uploadResult.url)
+        }
       }
 
       const { error: insertError } = await supabase
@@ -96,6 +130,8 @@ export default function CreateJobPage() {
           salary_min: formData.salary_min ? parseFloat(formData.salary_min) : null,
           salary_max: formData.salary_max ? parseFloat(formData.salary_max) : null,
           job_type: formData.job_type,
+          category: formData.category,
+          images: imageUrls,
           expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         })
 
@@ -203,6 +239,25 @@ export default function CreateJobPage() {
               </div>
 
               <div>
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                  Ngành nghề *
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  required
+                >
+                  <option value="">Chọn ngành nghề</option>
+                  {jobCategories.map(cat => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
                 <label htmlFor="job_type" className="block text-sm font-medium text-gray-700 mb-2">
                   Loại công việc *
                 </label>
@@ -283,6 +338,25 @@ export default function CreateJobPage() {
                   placeholder="Mô tả chi tiết công việc, yêu cầu, quyền lợi..."
                   required
                 />
+              </div>
+
+              <div>
+                <label htmlFor="images" className="block text-sm font-medium text-gray-700 mb-2">
+                  Hình ảnh (tối đa 5 ảnh)
+                </label>
+                <input
+                  type="file"
+                  id="images"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+                {images.length > 0 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Đã chọn {images.length} ảnh
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-6">

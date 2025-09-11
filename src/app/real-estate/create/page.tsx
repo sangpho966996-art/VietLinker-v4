@@ -36,7 +36,8 @@ export default function CreateRealEstatePage() {
     { value: 'condo', label: 'Chung cư' },
     { value: 'townhouse', label: 'Nhà phố' },
     { value: 'land', label: 'Đất' },
-    { value: 'commercial', label: 'Thương mại' }
+    { value: 'commercial', label: 'Thương mại' },
+    { value: 'room-rental', label: 'Cho thuê phòng' }
   ]
 
   useEffect(() => {
