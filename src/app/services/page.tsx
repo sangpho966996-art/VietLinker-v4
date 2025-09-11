@@ -136,7 +136,7 @@ export default function ServicesPage() {
         {/* Results */}
         {filteredBusinesses.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">🛠️</div>
+            <div className="text-gray-400 text-6xl mb-4">👤</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có dịch vụ nào</h3>
             <p className="text-gray-600">
               {searchTerm || selectedCity 
@@ -156,7 +156,7 @@ export default function ServicesPage() {
                 <div className="aspect-w-16 aspect-h-9 bg-gray-200">
                   <div className="flex items-center justify-center h-48 bg-gradient-to-br from-blue-50 to-indigo-100">
                     <div className="text-center">
-                      <div className="text-4xl mb-2">🛠️</div>
+                      <div className="text-4xl mb-2">👤</div>
                       <p className="text-sm text-gray-500">Dịch vụ chuyên nghiệp</p>
                     </div>
                   </div>
