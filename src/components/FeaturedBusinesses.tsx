@@ -106,7 +106,7 @@ export default function FeaturedBusinesses() {
               {businesses.map((business) => (
                 <Link
                   key={business.id}
-                  href={`/business/${business.id}`}
+                  href={`/${business.business_type}/${business.id}`}
                   className="group bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
                   <div className="aspect-w-16 aspect-h-9 bg-gradient-to-r from-red-500 to-red-600">
@@ -156,7 +156,7 @@ export default function FeaturedBusinesses() {
 
             <div className="text-center">
               <Link
-                href="/business"
+                href="/food"
                 className="btn btn-secondary"
               >
                 Xem tất cả doanh nghiệp
