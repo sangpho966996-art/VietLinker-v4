@@ -138,8 +138,20 @@ export default function RealEstatePage() {
       </div>
 
       {/* Hero Section */}
-      <div className="bg-red-600 text-white py-12">
-        <div className="container mx-auto px-4 text-center">
+      <div className="relative bg-gradient-to-r from-red-600 to-red-700 text-white py-12 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80')`
+          }}
+        />
+        
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+        
+        {/* Content */}
+        <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold mb-4">Bất động sản VietLinker</h1>
           <p className="text-xl mb-8">Mua bán, cho thuê bất động sản trong cộng đồng Việt Nam tại Mỹ</p>
         </div>

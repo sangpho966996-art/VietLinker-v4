@@ -78,15 +78,25 @@ export default function ServicesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Dịch vụ Việt Nam</h1>
-            <p className="mt-2 text-lg text-gray-600">
-              Khám phá các dịch vụ chuyên nghiệp từ cộng đồng Việt Nam
-            </p>
-          </div>
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-r from-red-600 to-red-700 text-white py-16 md:py-24 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80')`
+          }}
+        />
+        
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+        
+        {/* Content */}
+        <div className="relative z-10 container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">Dịch vụ Việt Nam</h1>
+          <p className="text-xl md:text-2xl mb-8 opacity-90">
+            Khám phá các dịch vụ chuyên nghiệp từ cộng đồng Việt Nam
+          </p>
         </div>
       </div>
 

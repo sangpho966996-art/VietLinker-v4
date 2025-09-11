@@ -127,20 +127,35 @@ export default function FoodDirectoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Nhà hàng &amp; Quán ăn Việt Nam
-            </h1>
-            <p className="text-lg text-gray-600">
-              Khám phá những nhà hàng Việt Nam tuyệt vời trong cộng đồng
-            </p>
-          </div>
-
-          {/* Search and Filters */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-r from-red-600 to-red-700 text-white py-16 md:py-24 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1559847844-5315695dadae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2058&q=80')`
+          }}
+        />
+        
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+        
+        {/* Content */}
+        <div className="relative z-10 container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Nhà hàng &amp; Quán ăn Việt Nam
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 opacity-90">
+            Khám phá những nhà hàng Việt Nam tuyệt vời trong cộng đồng
+          </p>
+        </div>
+      </div>
+      
+      <div className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            {/* Search and Filters */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
@@ -336,6 +351,7 @@ export default function FoodDirectoryPage() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }
