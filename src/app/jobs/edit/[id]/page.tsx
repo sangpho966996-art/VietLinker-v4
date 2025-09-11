@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
 import type { User } from '@supabase/supabase-js'
@@ -60,9 +61,9 @@ export default function EditJobPage() {
     }
 
     getUser()
-  }, [router, postId])
+  }, [router, postId, loadPost])
 
-  const loadPost = async (userId: string) => {
+  const loadPost = useCallback(async (userId: string) => {
     try {
       const { data: post, error } = await supabase
         .from('job_posts')
@@ -90,7 +91,7 @@ export default function EditJobPage() {
       console.error('Error loading post:', err)
       setError('Không thể tải thông tin tin đăng')
     }
-  }
+  }, [postId])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -351,10 +352,12 @@ export default function EditJobPage() {
                   </label>
                   <div className="flex space-x-2 mb-4">
                     {existingImages.map((image, index) => (
-                      <img
+                      <Image
                         key={index}
                         src={image}
                         alt={`Existing ${index + 1}`}
+                        width={80}
+                        height={80}
                         className="w-20 h-20 object-cover rounded"
                       />
                     ))}

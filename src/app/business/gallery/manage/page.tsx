@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, deleteImage, generateGalleryPath, getImageUrl } from '@/lib/supabase-storage'
 import type { User } from '@supabase/supabase-js'
@@ -46,6 +47,32 @@ export default function ManageGalleryPage() {
   const [caption, setCaption] = useState('')
   const router = useRouter()
 
+  const loadGalleryImages = useCallback(async () => {
+    if (!user) return
+
+    try {
+      const { data, error } = await supabase
+        .from('business_gallery')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('uploaded_at', { ascending: false })
+
+      if (error) {
+        console.error('Error loading gallery images:', error)
+        return
+      }
+
+      const imagesWithUrls = data.map(img => ({
+        ...img,
+        url: getImageUrl('business-images', img.file_path)
+      }))
+
+      setImages(imagesWithUrls)
+    } catch (error) {
+      console.error('Error in loadGalleryImages:', error)
+    }
+  }, [user])
+
   useEffect(() => {
     const checkUserAndLoadProfile = async () => {
       try {
@@ -70,7 +97,6 @@ export default function ManageGalleryPage() {
         }
 
         setBusinessProfile(profile)
-        await loadGalleryImages()
       } catch (error) {
         console.error('Error in checkUserAndLoadProfile:', error)
       } finally {
@@ -81,31 +107,11 @@ export default function ManageGalleryPage() {
     checkUserAndLoadProfile()
   }, [router])
 
-  const loadGalleryImages = async () => {
-    if (!user) return
-
-    try {
-      const { data, error } = await supabase
-        .from('business_gallery')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('uploaded_at', { ascending: false })
-
-      if (error) {
-        console.error('Error loading gallery images:', error)
-        return
-      }
-
-      const imagesWithUrls = data.map(img => ({
-        ...img,
-        url: getImageUrl('business-images', img.file_path)
-      }))
-
-      setImages(imagesWithUrls)
-    } catch (error) {
-      console.error('Error in loadGalleryImages:', error)
+  useEffect(() => {
+    if (user) {
+      loadGalleryImages()
     }
-  }
+  }, [user, loadGalleryImages])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -328,10 +334,11 @@ export default function ManageGalleryPage() {
                 {images.map((image) => (
                   <div key={image.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <div className="aspect-square relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                         src={image.url}
                         alt={image.caption || 'Gallery image'}
+                        width={300}
+                        height={300}
                         className="w-full h-full object-cover"
                       />
                     </div>

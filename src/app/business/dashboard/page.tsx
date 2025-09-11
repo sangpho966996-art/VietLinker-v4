@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import type { User } from '@supabase/supabase-js'
 
 interface BusinessProfile {
   id: number
@@ -28,7 +27,6 @@ export default function BusinessDashboard() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null)
-  const [user, setUser] = useState<User | null>(null)
 
   const checkUserAndLoadProfile = useCallback(async () => {
     try {
@@ -38,7 +36,6 @@ export default function BusinessDashboard() {
         return
       }
 
-      setUser(user)
 
       const { data: profile, error } = await supabase
         .from('business_profiles')

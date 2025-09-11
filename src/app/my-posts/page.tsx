@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
@@ -59,36 +60,7 @@ export default function MyPostsPage() {
   const [activeTab, setActiveTab] = useState<'marketplace' | 'jobs' | 'real-estate'>('marketplace')
   const router = useRouter()
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        
-        if (userError) {
-          console.error('Failed to get user:', userError.message)
-          router.push('/login')
-          return
-        }
-
-        if (!user) {
-          router.push('/login')
-          return
-        }
-
-        setUser(user)
-        await loadPosts(user.id)
-      } catch (err) {
-        console.error('Error loading user data:', err)
-        router.push('/login')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    getUser()
-  }, [router])
-
-  const loadPosts = async (userId: string) => {
+  const loadPosts = useCallback(async (userId: string) => {
     try {
       const { data: marketplaceData, error: marketplaceError } = await supabase
         .from('marketplace_posts')
@@ -128,7 +100,36 @@ export default function MyPostsPage() {
     } catch (err) {
       console.error('Error loading posts:', err)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        
+        if (userError) {
+          console.error('Failed to get user:', userError.message)
+          router.push('/login')
+          return
+        }
+
+        if (!user) {
+          router.push('/login')
+          return
+        }
+
+        setUser(user)
+        await loadPosts(user.id)
+      } catch (err) {
+        console.error('Error loading user data:', err)
+        router.push('/login')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    getUser()
+  }, [router, loadPosts])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -259,9 +260,11 @@ export default function MyPostsPage() {
                   {marketplacePosts.map((post) => (
                     <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                       {post.images && post.images.length > 0 && (
-                        <img
+                        <Image
                           src={post.images[0]}
                           alt={post.title}
+                          width={400}
+                          height={192}
                           className="w-full h-48 object-cover"
                         />
                       )}
@@ -336,10 +339,12 @@ export default function MyPostsPage() {
                       {post.images && post.images.length > 0 && (
                         <div className="mt-4 flex space-x-2">
                           {post.images.slice(0, 3).map((image, index) => (
-                            <img
+                            <Image
                               key={index}
                               src={image}
                               alt={`${post.title} ${index + 1}`}
+                              width={64}
+                              height={64}
                               className="w-16 h-16 object-cover rounded"
                             />
                           ))}
@@ -385,9 +390,11 @@ export default function MyPostsPage() {
                   {realEstatePosts.map((post) => (
                     <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                       {post.images && post.images.length > 0 && (
-                        <img
+                        <Image
                           src={post.images[0]}
                           alt={post.title}
+                          width={400}
+                          height={192}
                           className="w-full h-48 object-cover"
                         />
                       )}

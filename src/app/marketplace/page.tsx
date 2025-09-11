@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/lib/supabase'
 
@@ -29,11 +30,7 @@ export default function MarketplacePage() {
     { value: 'other', label: 'Khác' }
   ]
 
-  useEffect(() => {
-    loadPosts()
-  }, [selectedCategory, searchQuery])
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       setLoading(true)
       let query = supabase
@@ -61,7 +58,11 @@ export default function MarketplacePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedCategory, searchQuery])
+
+  useEffect(() => {
+    loadPosts()
+  }, [loadPosts])
 
   const formatPrice = (price: number | null) => {
     if (!price) return 'Liên hệ'
@@ -174,9 +175,11 @@ export default function MarketplacePage() {
                 {/* Image */}
                 <div className="h-48 bg-gray-200 relative">
                   {post.images && post.images.length > 0 ? (
-                    <img
+                    <Image
                       src={post.images[0]}
                       alt={post.title}
+                      width={400}
+                      height={300}
                       className="w-full h-full object-cover"
                     />
                   ) : (

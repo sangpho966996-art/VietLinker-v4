@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateAvatarPath } from '@/lib/supabase-storage'
 import type { User } from '@supabase/supabase-js'
@@ -222,9 +223,11 @@ export default function ProfilePage() {
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                     {avatarPreview ? (
-                      <img
+                      <Image
                         src={avatarPreview}
                         alt="Avatar"
+                        width={96}
+                        height={96}
                         className="w-full h-full object-cover"
                       />
                     ) : (

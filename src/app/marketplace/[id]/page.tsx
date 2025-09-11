@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/lib/supabase'
 
@@ -43,9 +44,9 @@ export default function MarketplaceDetailPage() {
     if (postId) {
       loadPost()
     }
-  }, [postId])
+  }, [postId, loadPost])
 
-  const loadPost = async () => {
+  const loadPost = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -98,7 +99,7 @@ export default function MarketplaceDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId])
 
   const formatPrice = (price: number | null) => {
     if (!price) return 'Liên hệ'
@@ -199,9 +200,11 @@ export default function MarketplaceDetailPage() {
               {post.images && post.images.length > 0 ? (
                 <div>
                   <div className="h-96 relative">
-                    <img
+                    <Image
                       src={post.images[selectedImageIndex]}
                       alt={post.title}
+                      width={800}
+                      height={400}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -216,9 +219,11 @@ export default function MarketplaceDetailPage() {
                               selectedImageIndex === index ? 'border-red-600' : 'border-gray-200'
                             }`}
                           >
-                            <img
+                            <Image
                               src={image}
                               alt={`${post.title} ${index + 1}`}
+                              width={80}
+                              height={80}
                               className="w-full h-full object-cover"
                             />
                           </button>
@@ -336,9 +341,11 @@ export default function MarketplaceDetailPage() {
                 >
                   <div className="h-48 bg-gray-200 relative">
                     {relatedPost.images && relatedPost.images.length > 0 ? (
-                      <img
+                      <Image
                         src={relatedPost.images[0]}
                         alt={relatedPost.title}
+                        width={300}
+                        height={200}
                         className="w-full h-full object-cover"
                       />
                     ) : (
