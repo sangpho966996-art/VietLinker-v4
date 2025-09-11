@@ -65,9 +65,9 @@ export default function BusinessRegisterPage() {
       if (profileError) throw profileError
 
       const { error: creditError } = await supabase.rpc('deduct_credits_for_post', {
-        user_id: user.id,
-        credit_amount: 50,
-        post_description: `Business profile registration: ${formData.businessName}`
+        user_uuid: user.id,
+        post_type: 'business_profile',
+        days: 1
       })
 
       if (creditError) throw creditError

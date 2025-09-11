@@ -306,6 +306,73 @@ export type Database = {
           created_at?: string
         }
       }
+      menu_items: {
+        Row: {
+          id: number
+          business_profile_id: number
+          name: string
+          description: string | null
+          price: number | null
+          category: string
+          available: boolean
+          image_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          business_profile_id: number
+          name: string
+          description?: string | null
+          price?: number | null
+          category: string
+          available?: boolean
+          image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          business_profile_id?: number
+          name?: string
+          description?: string | null
+          price?: number | null
+          category?: string
+          available?: boolean
+          image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      business_reviews: {
+        Row: {
+          id: number
+          business_profile_id: number
+          user_id: string
+          rating: number
+          comment: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          business_profile_id: number
+          user_id: string
+          rating: number
+          comment?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          business_profile_id?: number
+          user_id?: string
+          rating?: number
+          comment?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }
