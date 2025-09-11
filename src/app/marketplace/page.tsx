@@ -52,7 +52,7 @@ export default function MarketplacePage() {
       if (error) throw error
 
       setPosts(data || [])
-    } catch (_err) {
+    } catch {
       setError('Không thể tải tin đăng')
     } finally {
       setLoading(false)

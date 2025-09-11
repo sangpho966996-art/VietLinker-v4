@@ -70,7 +70,7 @@ export default function RealEstatePage() {
       if (error) throw error
 
       setPosts(data || [])
-    } catch (_err) {
+    } catch {
       setError('Không thể tải tin đăng bất động sản')
     } finally {
       setLoading(false)

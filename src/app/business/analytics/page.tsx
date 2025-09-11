@@ -71,7 +71,7 @@ export default function BusinessAnalyticsPage() {
 
         setBusinessProfile(profile)
         loadAnalyticsData()
-      } catch (_error) {
+      } catch {
         router.push('/login')
       } finally {
         setLoading(false)

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, BusinessHours } from '@/lib/supabase'
 import Link from 'next/link'
 
 interface BusinessProfile {
@@ -12,7 +12,7 @@ interface BusinessProfile {
   address: string
   phone: string
   website: string
-  hours: any
+  hours: BusinessHours | null
   status: string
   created_at: string
 }
@@ -38,8 +38,7 @@ export default function ServicesPage() {
 
       if (error) throw error
       setBusinesses(data || [])
-    } catch (error) {
-      console.error('Error fetching service businesses:', error)
+    } catch {
     } finally {
       setLoading(false)
     }
@@ -52,7 +51,7 @@ export default function ServicesPage() {
     return matchesSearch && matchesCity
   })
 
-  const formatHours = (hours: any) => {
+  const formatHours = (hours: BusinessHours | null) => {
     if (!hours || typeof hours !== 'object') return 'Chưa cập nhật'
     
     const today = new Date().getDay()

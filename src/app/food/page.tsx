@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import Image from 'next/image'
+import { supabase, BusinessHours } from '@/lib/supabase'
 
 interface BusinessProfile {
   id: number
@@ -14,13 +15,7 @@ interface BusinessProfile {
   state: string
   cover_image: string
   logo: string
-  hours: {
-    [key: string]: {
-      open: string
-      close: string
-      closed: boolean
-    }
-  }
+  hours: BusinessHours | null
   created_at: string
 }
 
@@ -50,7 +45,7 @@ export default function FoodDirectoryPage() {
       }
 
       setBusinesses(data || [])
-    } catch (_err) {
+    } catch {
       setError('Không thể tải danh sách nhà hàng')
     } finally {
       setLoading(false)
@@ -66,7 +61,7 @@ export default function FoodDirectoryPage() {
 
   const cities = [...new Set(businesses.map(b => b.city).filter(Boolean))]
 
-  const formatHours = (hours: any) => {
+  const formatHours = (hours: BusinessHours | null) => {
     if (!hours) return 'Chưa cập nhật giờ mở cửa'
     
     const today = new Date().toLocaleString('en-US', { weekday: 'long' }).toLowerCase()
@@ -175,10 +170,12 @@ export default function FoodDirectoryPage() {
                   {/* Cover Image */}
                   <div className="h-48 bg-gray-200 relative">
                     {business.cover_image ? (
-                      <img
+                      <Image
                         src={business.cover_image}
                         alt={business.business_name}
                         className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -191,10 +188,12 @@ export default function FoodDirectoryPage() {
                     {/* Logo overlay */}
                     {business.logo && (
                       <div className="absolute bottom-2 left-2">
-                        <img
+                        <Image
                           src={business.logo}
                           alt={`${business.business_name} logo`}
                           className="w-12 h-12 rounded-full border-2 border-white object-cover"
+                          width={48}
+                          height={48}
                         />
                       </div>
                     )}

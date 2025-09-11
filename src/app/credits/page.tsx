@@ -55,7 +55,7 @@ function CreditsPageContent() {
         } else {
           setUserProfile(profile)
         }
-      } catch (_error) {
+      } catch {
       } finally {
         setLoading(false)
       }
@@ -93,13 +93,11 @@ function CreditsPageContent() {
       const { sessionId, error } = await response.json()
 
       if (error) {
-        console.error('Payment session creation failed:', error)
         return
       }
 
       const stripe = await stripePromise
       if (!stripe) {
-        console.error('Failed to load Stripe')
         return
       }
 
@@ -108,10 +106,8 @@ function CreditsPageContent() {
       })
 
       if (stripeError) {
-        console.error('Stripe checkout redirect failed:', stripeError)
       }
-    } catch (error) {
-      console.error('Credit purchase failed:', error)
+    } catch {
     } finally {
       setPurchasing(null)
     }

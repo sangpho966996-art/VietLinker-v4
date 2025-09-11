@@ -110,7 +110,7 @@ export default function EditBusinessProfilePage() {
         if (profile.hours) {
           setHours({ ...defaultHours, ...profile.hours })
         }
-      } catch (_error) {
+      } catch {
         router.push('/login')
       } finally {
         setLoading(false)
@@ -137,12 +137,11 @@ export default function EditBusinessProfilePage() {
         .eq('id', businessProfile.id)
 
       if (error) {
-        throw new Error('Có lỗi xảy ra khi cập nhật hồ sơ doanh nghiệp.')
+        return
       }
 
       router.push('/business/dashboard')
-    } catch (_error) {
-      throw new Error('Có lỗi xảy ra khi cập nhật hồ sơ doanh nghiệp.')
+    } catch {
     } finally {
       setSaving(false)
     }

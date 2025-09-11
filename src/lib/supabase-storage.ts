@@ -45,7 +45,7 @@ export async function uploadImage(
       .getPublicUrl(path)
 
     return { success: true, url: publicUrl }
-  } catch (_error) {
+  } catch {
     return { success: false, error: 'Upload failed' }
   }
 }
@@ -70,7 +70,7 @@ export async function deleteImage(
     }
 
     return { success: true }
-  } catch (_error) {
+  } catch {
     return { success: false, error: 'Delete failed' }
   }
 }

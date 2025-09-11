@@ -19,7 +19,7 @@ export default function Header() {
           return
         }
         setUser(user)
-      } catch (_error) {
+      } catch {
       }
     }
 
@@ -32,7 +32,7 @@ export default function Header() {
           if (event === 'SIGNED_OUT') {
             router.refresh()
           }
-        } catch (_error) {
+        } catch {
         }
       }
     )
@@ -49,7 +49,7 @@ export default function Header() {
         return
       }
       router.push('/')
-    } catch (_error) {
+    } catch {
     }
   }
 

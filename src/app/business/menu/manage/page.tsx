@@ -87,7 +87,7 @@ export default function ManageMenuPage() {
 
         setBusinessProfile(profile)
         loadMenuItems()
-      } catch (_error) {
+      } catch {
         router.push('/login')
       } finally {
         setLoading(false)

@@ -1,10 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
+export interface BusinessHours {
+  [key: string]: {
+    open: string
+    close: string
+    closed: boolean
+  }
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials not configured. Some features may not work.')
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -231,7 +238,7 @@ export type Database = {
           zip_code: string | null
           cover_image: string | null
           logo: string | null
-          hours: Record<string, unknown> | null
+          hours: BusinessHours | null
           status: string
           created_at: string
           updated_at: string
@@ -251,7 +258,7 @@ export type Database = {
           zip_code?: string | null
           cover_image?: string | null
           logo?: string | null
-          hours?: Record<string, unknown> | null
+          hours?: BusinessHours | null
           status?: string
           created_at?: string
           updated_at?: string
@@ -271,7 +278,7 @@ export type Database = {
           zip_code?: string | null
           cover_image?: string | null
           logo?: string | null
-          hours?: Record<string, unknown> | null
+          hours?: BusinessHours | null
           status?: string
           created_at?: string
           updated_at?: string

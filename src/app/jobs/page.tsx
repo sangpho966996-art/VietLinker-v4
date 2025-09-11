@@ -76,7 +76,7 @@ export default function JobsPage() {
       }
 
       setPosts(data || [])
-    } catch (_err) {
+    } catch {
       setError('Không thể tải danh sách việc làm')
     } finally {
       setLoading(false)

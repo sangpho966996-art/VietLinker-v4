@@ -138,8 +138,8 @@ export default function CreateMarketplacePage() {
       }
 
       router.push('/dashboard')
-    } catch (_err) {
-      setError(_err instanceof Error ? _err.message : 'Có lỗi xảy ra')
+    } catch {
+      setError('Có lỗi xảy ra khi đăng tin')
     } finally {
       setLoading(false)
     }

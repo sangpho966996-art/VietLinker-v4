@@ -70,7 +70,7 @@ export default function EditMarketplacePage() {
         })
         setExistingImages(post.images || [])
       }
-    } catch (_err) {
+    } catch {
       setError('Không thể tải thông tin tin đăng')
     }
   }, [postId])

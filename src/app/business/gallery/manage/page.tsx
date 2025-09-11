@@ -67,7 +67,7 @@ export default function ManageGalleryPage() {
       }))
 
       setImages(imagesWithUrls)
-    } catch (_error) {
+    } catch {
     }
   }, [user])
 
@@ -94,7 +94,7 @@ export default function ManageGalleryPage() {
         }
 
         setBusinessProfile(profile)
-      } catch (_error) {
+      } catch {
       } finally {
         setLoading(false)
       }
@@ -168,7 +168,7 @@ export default function ManageGalleryPage() {
       if (fileInput) {
         fileInput.value = ''
       }
-    } catch (_error) {
+    } catch {
     } finally {
       setUploading(false)
     }
@@ -194,7 +194,7 @@ export default function ManageGalleryPage() {
       
       const updatedImages = images.filter(img => img.id !== id)
       setImages(updatedImages)
-    } catch (_error) {
+    } catch {
     }
   }
 
@@ -213,7 +213,7 @@ export default function ManageGalleryPage() {
         img.id === id ? { ...img, caption: newCaption } : img
       )
       setImages(updatedImages)
-    } catch (_error) {
+    } catch {
     }
   }
 

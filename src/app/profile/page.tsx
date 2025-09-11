@@ -63,7 +63,7 @@ export default function ProfilePage() {
           })
           setAvatarPreview(profile.avatar_url || null)
         }
-      } catch (_error) {
+      } catch {
       } finally {
         setLoading(false)
       }
@@ -123,7 +123,7 @@ export default function ProfilePage() {
       }
       
       await updateProfile(avatarUrl)
-    } catch (_error) {
+    } catch {
       setError('Có lỗi xảy ra khi cập nhật hồ sơ.')
       setSaving(false)
       setUploading(false)
@@ -171,7 +171,7 @@ export default function ProfilePage() {
       setTimeout(() => {
         router.push('/dashboard')
       }, 1500)
-    } catch (_error) {
+    } catch {
       setError('Có lỗi xảy ra khi cập nhật hồ sơ.')
     } finally {
       setSaving(false)

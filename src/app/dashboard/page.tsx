@@ -49,9 +49,8 @@ export default function DashboardPage() {
         } else if (profileData) {
           setProfile(profileData)
         }
-      } catch (_err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-        setError(errorMessage)
+      } catch {
+        setError('Không thể tải thông tin người dùng')
       } finally {
         setLoading(false)
       }

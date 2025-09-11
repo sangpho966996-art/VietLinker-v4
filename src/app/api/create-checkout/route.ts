@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia',
-})
+export const dynamic = 'force-dynamic'
 
 
 export async function POST(request: NextRequest) {
@@ -16,6 +14,15 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+    if (!stripeSecretKey) {
+      return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: '2025-02-24.acacia',
+    })
 
     const creditPackages = {
       10: { price: 1000, name: '10 Credits' },
@@ -57,7 +64,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ sessionId: session.id })
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

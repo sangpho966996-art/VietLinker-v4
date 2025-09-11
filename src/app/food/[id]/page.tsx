@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import Image from 'next/image'
+import { supabase, BusinessHours } from '@/lib/supabase'
 
 interface BusinessProfile {
   id: number
@@ -60,7 +61,6 @@ interface GalleryImage {
 
 export default function FoodBusinessPage() {
   const params = useParams()
-  const router = useRouter()
   const businessId = params.id as string
 
   const [business, setBusiness] = useState<BusinessProfile | null>(null)
@@ -71,13 +71,7 @@ export default function FoodBusinessPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('menu')
 
-  useEffect(() => {
-    if (businessId) {
-      loadBusinessData()
-    }
-  }, [businessId])
-
-  const loadBusinessData = async () => {
+  const loadBusinessData = useCallback(async () => {
     try {
       const { data: businessData, error: businessError } = await supabase
         .from('business_profiles')
@@ -132,23 +126,32 @@ export default function FoodBusinessPage() {
         setGallery(galleryData)
       }
 
-    } catch (_err) {
+    } catch {
       setError('Không thể tải thông tin nhà hàng')
     } finally {
       setLoading(false)
     }
-  }
+  }, [businessId])
 
-  const formatHours = (hours: any) => {
+  useEffect(() => {
+    if (businessId) {
+      loadBusinessData()
+    }
+  }, [businessId, loadBusinessData])
+
+  const formatHours = (hours: BusinessHours | null): Array<{ day: string; hours: string }> => {
     if (!hours) return []
     
     const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
     const dayNames = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật']
     
-    return daysOfWeek.map((day, index) => ({
-      day: dayNames[index],
-      hours: hours[day] || { open: '', close: '', closed: true }
-    }))
+    return daysOfWeek.map((day, index) => {
+      const dayHours = hours[day]
+      return {
+        day: dayNames[index],
+        hours: dayHours?.closed ? 'Đóng cửa' : `${dayHours?.open || '00:00'} - ${dayHours?.close || '00:00'}`
+      }
+    })
   }
 
   const groupedMenuItems = menuItems.reduce((acc, item) => {
@@ -193,10 +196,12 @@ export default function FoodBusinessPage() {
       {/* Hero Section */}
       <div className="relative h-64 md:h-80">
         {business.cover_image ? (
-          <img
+          <Image
             src={business.cover_image}
             alt={business.business_name}
             className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-red-500 to-red-600"></div>
@@ -208,10 +213,12 @@ export default function FoodBusinessPage() {
           <div className="container mx-auto max-w-6xl">
             <div className="flex items-end space-x-4">
               {business.logo && (
-                <img
+                <Image
                   src={business.logo}
                   alt={`${business.business_name} logo`}
                   className="w-20 h-20 rounded-full border-4 border-white object-cover"
+                  width={80}
+                  height={80}
                 />
               )}
               <div>
@@ -343,14 +350,11 @@ export default function FoodBusinessPage() {
                 <div className="mb-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-3">Giờ mở cửa</h3>
                   <div className="space-y-2">
-                    {formatHours(business.hours).map((dayInfo: any, index: number) => (
+                    {formatHours(business.hours).map((dayInfo: { day: string; hours: string }, index: number) => (
                       <div key={index} className="flex justify-between items-center py-1">
                         <span className="text-gray-700">{dayInfo.day}</span>
                         <span className="text-gray-600">
-                          {dayInfo.hours.closed 
-                            ? 'Đóng cửa' 
-                            : `${dayInfo.hours.open} - ${dayInfo.hours.close}`
-                          }
+                          {dayInfo.hours}
                         </span>
                       </div>
                     ))}
@@ -419,10 +423,12 @@ export default function FoodBusinessPage() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {gallery.map((image) => (
                       <div key={image.id} className="aspect-square">
-                        <img
+                        <Image
                           src={image.file_path}
                           alt={image.caption || 'Hình ảnh nhà hàng'}
                           className="w-full h-full object-cover rounded-lg"
+                          fill
+                          sizes="(max-width: 768px) 50vw, 33vw"
                         />
                       </div>
                     ))}
@@ -451,10 +457,12 @@ export default function FoodBusinessPage() {
                         <div className="flex items-start space-x-3">
                           <div className="flex-shrink-0">
                             {review.users?.avatar_url ? (
-                              <img
+                              <Image
                                 src={review.users.avatar_url}
                                 alt={review.users.full_name || 'User'}
                                 className="w-10 h-10 rounded-full object-cover"
+                                width={40}
+                                height={40}
                               />
                             ) : (
                               <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">

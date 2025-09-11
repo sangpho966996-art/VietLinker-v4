@@ -94,7 +94,7 @@ export default function MyPostsPage() {
       } else {
         setRealEstatePosts(realEstateData || [])
       }
-    } catch (_err) {
+    } catch {
     }
   }, [])
 
@@ -115,7 +115,7 @@ export default function MyPostsPage() {
 
         setUser(user)
         await loadPosts(user.id)
-      } catch (_err) {
+      } catch {
         router.push('/login')
       } finally {
         setLoading(false)
@@ -159,7 +159,7 @@ export default function MyPostsPage() {
       if (user) {
         await loadPosts(user.id)
       }
-    } catch (_err) {
+    } catch {
     }
   }
 

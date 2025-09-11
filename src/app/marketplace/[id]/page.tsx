@@ -85,7 +85,7 @@ export default function MarketplaceDetailPage() {
         setRelatedPosts(relatedData || [])
       }
 
-    } catch (_err) {
+    } catch {
       setError('Không thể tải tin đăng')
     } finally {
       setLoading(false)

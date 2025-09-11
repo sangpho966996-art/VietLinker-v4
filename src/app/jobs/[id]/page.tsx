@@ -91,7 +91,7 @@ export default function JobDetailPage() {
         setRelatedPosts(relatedData)
       }
 
-    } catch (_err) {
+    } catch {
       setError('Không thể tải thông tin tin đăng')
     } finally {
       setLoading(false)

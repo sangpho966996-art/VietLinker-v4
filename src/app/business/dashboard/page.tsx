@@ -47,7 +47,7 @@ export default function BusinessDashboard() {
       } else if (profile) {
         setBusinessProfile(profile)
       }
-    } catch (error: unknown) {
+    } catch {
     } finally {
       setLoading(false)
     }
@@ -166,7 +166,7 @@ export default function BusinessDashboard() {
                     </div>
                     <div className="ml-4">
                       <h3 className="font-medium text-gray-900">Quản lý Menu</h3>
-                      <p className="text-sm text-gray-600">Cập nhật món ăn & giá cả</p>
+                      <p className="text-sm text-gray-600">Cập nhật món ăn và giá cả</p>
                     </div>
                   </Link>
                 )}
@@ -182,7 +182,7 @@ export default function BusinessDashboard() {
                   </div>
                   <div className="ml-4">
                     <h3 className="font-medium text-gray-900">Quản lý Hình ảnh</h3>
-                    <p className="text-sm text-gray-600">Upload & sắp xếp photos</p>
+                    <p className="text-sm text-gray-600">Upload và sắp xếp photos</p>
                   </div>
                 </Link>
 
@@ -197,7 +197,7 @@ export default function BusinessDashboard() {
                   </div>
                   <div className="ml-4">
                     <h3 className="font-medium text-gray-900">Thống kê</h3>
-                    <p className="text-sm text-gray-600">Xem views & engagement</p>
+                    <p className="text-sm text-gray-600">Xem views và engagement</p>
                   </div>
                 </Link>
               </div>

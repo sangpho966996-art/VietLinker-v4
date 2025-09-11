@@ -39,10 +39,10 @@ export default function HeroSection() {
           const data = await response.json()
           const locationString = `${data.city}, ${data.principalSubdivision}`
           setLocation(locationString)
-        } catch (_error) {
+        } catch {
         }
       },
-      (_error) => {
+      () => {
       }
     )
   }

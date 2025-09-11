@@ -2,21 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia',
-})
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-)
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
     const signature = request.headers.get('stripe-signature')!
+
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
+
+    if (!stripeSecretKey || !webhookSecret || !supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json({ error: 'Configuration missing' }, { status: 500 })
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: '2025-02-24.acacia',
+    })
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     let event: Stripe.Event
 

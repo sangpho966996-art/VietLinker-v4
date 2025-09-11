@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import Image from 'next/image'
+import { supabase, BusinessHours } from '@/lib/supabase'
 
 interface BusinessProfile {
   id: number
@@ -12,7 +13,7 @@ interface BusinessProfile {
   address: string
   phone: string
   website: string
-  hours: any
+  hours: BusinessHours | null
   status: string
   created_at: string
 }
@@ -59,13 +60,7 @@ export default function ServiceProfilePage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('posts')
 
-  useEffect(() => {
-    if (businessId) {
-      fetchBusinessData()
-    }
-  }, [businessId])
-
-  const fetchBusinessData = async () => {
+  const fetchBusinessData = useCallback(async () => {
     try {
       const { data: businessData, error: businessError } = await supabase
         .from('business_profiles')
@@ -83,9 +78,7 @@ export default function ServiceProfilePage() {
         .eq('business_profile_id', businessId)
         .order('created_at', { ascending: false })
 
-      if (postsError && postsError.code !== 'PGRST116') {
-        console.error('Error fetching posts:', postsError)
-      } else {
+      if (!postsError || postsError.code === 'PGRST116') {
         setPosts(postsData || [])
       }
 
@@ -101,9 +94,7 @@ export default function ServiceProfilePage() {
         .eq('business_profile_id', businessId)
         .order('created_at', { ascending: false })
 
-      if (reviewsError && reviewsError.code !== 'PGRST116') {
-        console.error('Error fetching reviews:', reviewsError)
-      } else {
+      if (!reviewsError || reviewsError.code === 'PGRST116') {
         setReviews(reviewsData || [])
       }
 
@@ -113,21 +104,24 @@ export default function ServiceProfilePage() {
         .eq('business_profile_id', businessId)
         .order('created_at', { ascending: false })
 
-      if (galleryError && galleryError.code !== 'PGRST116') {
-        console.error('Error fetching gallery:', galleryError)
-      } else {
+      if (!galleryError || galleryError.code === 'PGRST116') {
         setGallery(galleryData || [])
       }
 
-    } catch (error) {
-      console.error('Error fetching business data:', error)
+    } catch {
     } finally {
       setLoading(false)
     }
-  }
+  }, [businessId])
 
-  const formatHours = (hours: any) => {
-    if (!hours || typeof hours !== 'object') return {}
+  useEffect(() => {
+    if (businessId) {
+      fetchBusinessData()
+    }
+  }, [businessId, fetchBusinessData])
+
+  const formatHours = (hours: BusinessHours | null) => {
+    if (!hours || typeof hours !== 'object') return []
     
     const dayNames = {
       monday: 'Thứ 2',
@@ -317,10 +311,12 @@ export default function ServiceProfilePage() {
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {gallery.map((image) => (
                           <div key={image.id} className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                            <img
+                            <Image
                               src={image.image_url}
                               alt={image.caption || 'Business image'}
                               className="w-full h-full object-cover"
+                              fill
+                              sizes="(max-width: 768px) 50vw, 33vw"
                             />
                           </div>
                         ))}
@@ -345,10 +341,12 @@ export default function ServiceProfilePage() {
                             <div className="flex items-start space-x-4">
                               <div className="flex-shrink-0">
                                 {review.users?.avatar_url ? (
-                                  <img
+                                  <Image
                                     src={review.users.avatar_url}
                                     alt={review.users.full_name}
                                     className="h-10 w-10 rounded-full"
+                                    width={40}
+                                    height={40}
                                   />
                                 ) : (
                                   <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
