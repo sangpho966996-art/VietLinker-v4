@@ -22,6 +22,7 @@ export default function CreateJobPage() {
     job_type: '',
     category: '',
   })
+  const [showTitleSuggestions, setShowTitleSuggestions] = useState(false)
   const [images, setImages] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,14 +36,64 @@ export default function CreateJobPage() {
   ]
 
   const jobCategories = [
-    { value: 'nails', label: 'Tiệm Nails' },
-    { value: 'restaurant', label: 'Nhà hàng' },
-    { value: 'office-tax', label: 'Văn phòng Thuế' },
-    { value: 'office-insurance', label: 'Văn phòng Bảo hiểm' },
-    { value: 'medical', label: 'Y tế/Bác sĩ' },
-    { value: 'retail', label: 'Bán lẻ' },
-    { value: 'other', label: 'Khác' }
+    { value: 'nails', label: '💅 Tiệm Nails', description: 'Thợ nails, receptionist, manager' },
+    { value: 'restaurant', label: '🍜 Nhà hàng Việt Nam', description: 'Đầu bếp, phục vụ, cashier, manager' },
+    { value: 'office-tax', label: '📊 Văn phòng Thuế', description: 'Tax preparer, receptionist, assistant' },
+    { value: 'office-insurance', label: '🛡️ Văn phòng Bảo hiểm', description: 'Insurance agent, customer service' },
+    { value: 'medical', label: '⚕️ Y tế/Bác sĩ', description: 'Medical assistant, receptionist, nurse' },
+    { value: 'retail', label: '🏪 Bán lẻ', description: 'Sales associate, cashier, manager' },
+    { value: 'other', label: '📋 Khác', description: 'Các ngành nghề khác' }
   ]
+
+  const getJobTitleSuggestions = (category: string): string[] => {
+    const suggestions: Record<string, string[]> = {
+      'nails': [
+        'Thợ Nails có kinh nghiệm',
+        'Nail Technician - Full time',
+        'Receptionist tiệm Nails',
+        'Manager tiệm Nails',
+        'Thợ Nails part-time'
+      ],
+      'restaurant': [
+        'Đầu bếp Việt Nam',
+        'Phục vụ nhà hàng',
+        'Cashier/Thu ngân',
+        'Kitchen Helper',
+        'Manager nhà hàng',
+        'Bartender',
+        'Host/Hostess'
+      ],
+      'office-tax': [
+        'Tax Preparer',
+        'Receptionist văn phòng thuế',
+        'Tax Assistant',
+        'Customer Service Rep',
+        'Office Manager'
+      ],
+      'office-insurance': [
+        'Insurance Agent',
+        'Customer Service Representative',
+        'Office Assistant',
+        'Claims Processor',
+        'Receptionist'
+      ],
+      'medical': [
+        'Medical Assistant',
+        'Receptionist phòng khám',
+        'Dental Assistant',
+        'Medical Receptionist',
+        'Patient Coordinator'
+      ],
+      'retail': [
+        'Sales Associate',
+        'Cashier',
+        'Store Manager',
+        'Customer Service',
+        'Inventory Clerk'
+      ]
+    }
+    return suggestions[category] || []
+  }
 
   useEffect(() => {
     const getUser = async () => {
@@ -75,6 +126,18 @@ export default function CreateJobPage() {
       ...prev,
       [name]: value
     }))
+    
+    if (name === 'category') {
+      setShowTitleSuggestions(value !== '')
+    }
+  }
+
+  const handleTitleSuggestionClick = (suggestion: string) => {
+    setFormData(prev => ({
+      ...prev,
+      title: suggestion
+    }))
+    setShowTitleSuggestions(false)
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,9 +257,18 @@ export default function CreateJobPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Đăng tin Việc làm</h1>
-            <p className="text-gray-600">Đăng tin tuyển dụng việc làm</p>
-            <p className="text-sm text-gray-500 mt-2">Chi phí: 30 credits cho 30 ngày</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">🔍 Tuyển Dụng Nhân Viên</h1>
+            <p className="text-gray-600">Đăng tin tuyển dụng cho tiệm nails, nhà hàng, văn phòng và các doanh nghiệp Việt</p>
+            <p className="text-sm text-gray-500 mt-2">💰 Chi phí: 30 credits cho 30 ngày hiển thị</p>
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 className="font-semibold text-blue-900 mb-2">💡 Mẹo đăng tin hiệu quả:</h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Viết tiêu đề rõ ràng: "Tuyển thợ nails có kinh nghiệm - $15-20/giờ"</li>
+                <li>• Ghi rõ yêu cầu: kinh nghiệm, giờ làm việc, ngôn ngữ</li>
+                <li>• Nêu quyền lợi: lương, tip, bảo hiểm, nghỉ phép</li>
+                <li>• Thêm ảnh tiệm/văn phòng để thu hút ứng viên</li>
+              </ul>
+            </div>
           </div>
 
           {error && (
@@ -210,6 +282,7 @@ export default function CreateJobPage() {
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                   Tiêu đề công việc *
+                  <span className="text-xs text-gray-500 ml-2">Viết rõ ràng để thu hút ứng viên</span>
                 </label>
                 <input
                   type="text"
@@ -218,14 +291,33 @@ export default function CreateJobPage() {
                   value={formData.title}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Nhập tiêu đề công việc"
+                  placeholder="VD: Tuyển thợ nails có kinh nghiệm - Lương cao + tip"
                   required
                 />
+                
+                {showTitleSuggestions && formData.category && (
+                  <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-sm font-medium text-gray-700 mb-2">💡 Gợi ý tiêu đề phổ biến:</p>
+                    <div className="space-y-1">
+                      {getJobTitleSuggestions(formData.category).map((suggestion: string, index: number) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleTitleSuggestionClick(suggestion)}
+                          className="block w-full text-left px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
+                        >
+                          📝 {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
                 <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
-                  Công ty
+                  Tên tiệm/công ty
+                  <span className="text-xs text-gray-500 ml-2">Tên doanh nghiệp của bạn</span>
                 </label>
                 <input
                   type="text"
@@ -234,13 +326,21 @@ export default function CreateJobPage() {
                   value={formData.company}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Tên công ty"
+                  placeholder={
+                    formData.category === 'nails' ? 'VD: Happy Nails Salon' :
+                    formData.category === 'restaurant' ? 'VD: Phở Saigon Restaurant' :
+                    formData.category === 'medical' ? 'VD: ABC Medical Clinic' :
+                    formData.category === 'office-tax' ? 'VD: Viet Tax Services' :
+                    formData.category === 'office-insurance' ? 'VD: ABC Insurance Agency' :
+                    'Tên tiệm/công ty của bạn'
+                  }
                 />
               </div>
 
               <div>
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                  Ngành nghề *
+                  Ngành nghề * 
+                  <span className="text-xs text-gray-500 ml-2">Chọn loại hình kinh doanh của bạn</span>
                 </label>
                 <select
                   id="category"
@@ -250,11 +350,18 @@ export default function CreateJobPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                   required
                 >
-                  <option value="">Chọn ngành nghề</option>
+                  <option value="">👆 Chọn ngành nghề của bạn</option>
                   {jobCategories.map(cat => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                    <option key={cat.value} value={cat.value} title={cat.description}>
+                      {cat.label}
+                    </option>
                   ))}
                 </select>
+                {formData.category && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    💼 {jobCategories.find(cat => cat.value === formData.category)?.description}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -279,7 +386,7 @@ export default function CreateJobPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="salary_min" className="block text-sm font-medium text-gray-700 mb-2">
-                    Lương tối thiểu ($)
+                    💰 Lương tối thiểu ($/giờ hoặc $/tháng)
                   </label>
                   <input
                     type="number"
@@ -288,13 +395,19 @@ export default function CreateJobPage() {
                     value={formData.salary_min}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                    placeholder="0"
+                    placeholder={
+                      formData.category === 'nails' ? '15' :
+                      formData.category === 'restaurant' ? '14' :
+                      formData.category === 'medical' ? '16' :
+                      '15'
+                    }
                     min="0"
+                    step="0.5"
                   />
                 </div>
                 <div>
                   <label htmlFor="salary_max" className="block text-sm font-medium text-gray-700 mb-2">
-                    Lương tối đa ($)
+                    💰 Lương tối đa ($/giờ hoặc $/tháng)
                   </label>
                   <input
                     type="number"
@@ -303,15 +416,25 @@ export default function CreateJobPage() {
                     value={formData.salary_max}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                    placeholder="0"
+                    placeholder={
+                      formData.category === 'nails' ? '25' :
+                      formData.category === 'restaurant' ? '18' :
+                      formData.category === 'medical' ? '22' :
+                      '20'
+                    }
                     min="0"
+                    step="0.5"
                   />
                 </div>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                💡 Mẹo: Ghi rõ "$/giờ + tip" hoặc "$/tháng + benefits" để thu hút ứng viên
+              </p>
 
               <div>
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                  Địa điểm
+                  📍 Địa điểm làm việc
+                  <span className="text-xs text-gray-500 ml-2">Địa chỉ tiệm/văn phòng</span>
                 </label>
                 <input
                   type="text"
@@ -320,24 +443,70 @@ export default function CreateJobPage() {
                   value={formData.location}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Thành phố, Bang"
+                  placeholder="VD: San Jose, CA hoặc 123 Main St, San Jose, CA"
                 />
               </div>
 
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                  Mô tả công việc *
+                  📝 Mô tả công việc *
+                  <span className="text-xs text-gray-500 ml-2">Viết chi tiết để thu hút ứng viên phù hợp</span>
                 </label>
                 <textarea
                   id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  rows={6}
+                  rows={8}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Mô tả chi tiết công việc, yêu cầu, quyền lợi..."
+                  placeholder={
+                    formData.category === 'nails' ? 
+`Mô tả công việc:
+• Làm nails, pedicure, manicure
+• Phục vụ khách hàng thân thiện
+• Giữ gìn vệ sinh và sạch sẽ
+
+Yêu cầu:
+• Có kinh nghiệm làm nails tối thiểu 1 năm
+• Biết tiếng Anh cơ bản
+• Thái độ tích cực, chăm chỉ
+
+Quyền lợi:
+• Lương $15-25/giờ + tip
+• Làm việc trong môi trường thân thiện
+• Có cơ hội thăng tiến` :
+                    formData.category === 'restaurant' ?
+`Mô tả công việc:
+• Nấu các món ăn Việt Nam truyền thống
+• Chuẩn bị nguyên liệu, giữ vệ sinh bếp
+• Phối hợp với team phục vụ
+
+Yêu cầu:
+• Có kinh nghiệm nấu ăn Việt Nam
+• Biết tiếng Anh cơ bản
+• Có thể làm việc cuối tuần
+
+Quyền lợi:
+• Lương $16-20/giờ
+• Được ăn uống tại chỗ
+• Môi trường làm việc vui vẻ` :
+`Mô tả chi tiết:
+• Nhiệm vụ công việc
+• Yêu cầu kinh nghiệm và kỹ năng
+• Giờ làm việc
+• Quyền lợi và phúc lợi
+• Cơ hội phát triển
+
+Liên hệ:
+• Số điện thoại
+• Email
+• Địa chỉ`
+                  }
                   required
                 />
+                <div className="mt-2 text-xs text-gray-500">
+                  💡 <strong>Mẹo viết mô tả hay:</strong> Ghi rõ công việc cụ thể → Yêu cầu kinh nghiệm → Quyền lợi hấp dẫn → Thông tin liên hệ
+                </div>
               </div>
 
               <div>
