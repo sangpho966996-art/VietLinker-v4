@@ -25,8 +25,14 @@ export default function FoodDirectoryPage() {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCity, setSelectedCity] = useState('')
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null)
+  const [sortByDistance, setSortByDistance] = useState(false)
 
   useEffect(() => {
+    const stored = localStorage.getItem('userLocation')
+    if (stored) {
+      setUserLocation(JSON.parse(stored))
+    }
     loadBusinesses()
   }, [])
 
@@ -61,6 +67,42 @@ export default function FoodDirectoryPage() {
 
   const cities = [...new Set(businesses.map(b => b.city).filter(Boolean))]
 
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const R = 3959 // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180
+    const dLng = (lng2 - lng1) * Math.PI / 180
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    return R * c
+  }
+
+  const getBusinessCoordinates = (city: string) => {
+    const cityLower = city.toLowerCase()
+    if (cityLower.includes('houston')) return { lat: 29.7604, lng: -95.3698 }
+    if (cityLower.includes('dallas')) return { lat: 32.7767, lng: -96.7970 }
+    if (cityLower.includes('austin')) return { lat: 30.2672, lng: -97.7431 }
+    if (cityLower.includes('san antonio')) return { lat: 29.4241, lng: -98.4936 }
+    return { lat: 29.7604, lng: -95.3698 } // default to Houston
+  }
+
+  const sortBusinessesByDistance = () => {
+    if (!userLocation) return
+
+    const businessesWithDistance = businesses.map(business => {
+      const businessCoords = getBusinessCoordinates(business.city || '')
+      const distance = calculateDistance(
+        userLocation.lat, userLocation.lng,
+        businessCoords.lat, businessCoords.lng
+      )
+      return { ...business, distance }
+    })
+
+    businessesWithDistance.sort((a, b) => (a.distance || 999) - (b.distance || 999))
+    setBusinesses(businessesWithDistance)
+  }
+
   const formatHours = (hours: BusinessHours | null) => {
     if (!hours) return 'Chưa cập nhật giờ mở cửa'
     
@@ -91,7 +133,7 @@ export default function FoodDirectoryPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Nhà hàng & Quán ăn Việt Nam
+              Nhà hàng &amp; Quán ăn Việt Nam
             </h1>
             <p className="text-lg text-gray-600">
               Khám phá những nhà hàng Việt Nam tuyệt vời trong cộng đồng
@@ -100,7 +142,7 @@ export default function FoodDirectoryPage() {
 
           {/* Search and Filters */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tìm kiếm nhà hàng
@@ -128,6 +170,30 @@ export default function FoodDirectoryPage() {
                   ))}
                 </select>
               </div>
+              {userLocation && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sắp xếp theo khoảng cách
+                  </label>
+                  <button
+                    onClick={() => {
+                      setSortByDistance(!sortByDistance)
+                      if (!sortByDistance) {
+                        sortBusinessesByDistance()
+                      } else {
+                        loadBusinesses() // Reset to original order
+                      }
+                    }}
+                    className={`w-full px-4 py-2 rounded-md font-medium transition-colors ${
+                      sortByDistance 
+                        ? 'bg-green-600 text-white hover:bg-green-700' 
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {sortByDistance ? '🎯 Gần nhất' : '📍 Sắp xếp theo khoảng cách'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -221,6 +287,11 @@ export default function FoodDirectoryPage() {
                           <span className="truncate">
                             {business.address}, {business.city}, {business.state}
                           </span>
+                          {(business as BusinessProfile & { distance?: number }).distance && (
+                            <span className="ml-2 text-green-600 font-medium">
+                              • {(business as BusinessProfile & { distance?: number }).distance!.toFixed(1)} miles
+                            </span>
+                          )}
                         </div>
                       )}
 

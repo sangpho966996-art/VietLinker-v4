@@ -28,6 +28,9 @@ export default function HeroSection() {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords
+          
+          localStorage.setItem('userLocation', JSON.stringify({ lat: latitude, lng: longitude }))
+          
           const response = await fetch(
             `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
           )
@@ -40,9 +43,11 @@ export default function HeroSection() {
           const locationString = `${data.city}, ${data.principalSubdivision}`
           setLocation(locationString)
         } catch {
+          setLocation('Houston, TX')
         }
       },
       () => {
+        setLocation('Houston, TX')
       }
     )
   }
@@ -103,12 +108,59 @@ export default function HeroSection() {
                 </button>
               </div>
               
-              <button
-                type="submit"
-                className="px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Tìm kiếm
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Tìm kiếm
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const params = new URLSearchParams()
+                    if (searchQuery.trim()) params.set('q', searchQuery.trim())
+                    params.set('nearby', 'true')
+                    
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        async (position) => {
+                          const { latitude, longitude } = position.coords
+                          localStorage.setItem('userLocation', JSON.stringify({ lat: latitude, lng: longitude }))
+                          
+                          try {
+                            const response = await fetch(
+                              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+                            )
+                            if (response.ok) {
+                              const data = await response.json()
+                              const locationString = `${data.city}, ${data.principalSubdivision}`
+                              params.set('location', locationString)
+                            } else {
+                              params.set('location', 'Houston, TX')
+                            }
+                          } catch {
+                            params.set('location', 'Houston, TX')
+                          }
+                          
+                          router.push(`/search?${params.toString()}`)
+                        },
+                        () => {
+                          params.set('location', 'Houston, TX')
+                          router.push(`/search?${params.toString()}`)
+                        }
+                      )
+                    } else {
+                      params.set('location', 'Houston, TX')
+                      router.push(`/search?${params.toString()}`)
+                    }
+                  }}
+                  className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                  title="Tìm dịch vụ gần tôi"
+                >
+                  🎯 Gần tôi
+                </button>
+              </div>
             </div>
           </div>
         </form>
