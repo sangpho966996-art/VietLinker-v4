@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/lib/supabase'
+import { copyToClipboard, shareContent, showToast } from '@/lib/contact-utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -119,6 +120,37 @@ export default function MarketplaceDetailPage() {
   const getCategoryLabel = (value: string) => {
     const category = categories.find(cat => cat.value === value)
     return category ? category.label : value
+  }
+
+  const handleContactSeller = () => {
+    if (seller?.phone) {
+      window.location.href = `tel:${seller.phone}`
+    } else {
+      window.location.href = `/contact?type=marketplace&id=${post?.id}`
+    }
+  }
+
+  const handleSendMessage = () => {
+    window.location.href = `/contact?type=marketplace&id=${post?.id}&subject=${encodeURIComponent(`Quan tâm đến sản phẩm: ${post?.title || ''}`)}`
+  }
+
+  const handleCopyLink = async () => {
+    const success = await copyToClipboard(window.location.href)
+    if (success) {
+      showToast('Đã sao chép liên kết')
+    }
+  }
+
+  const handleShare = async () => {
+    if (!post) return
+    try {
+      await shareContent(post.title, window.location.href)
+      if (!navigator.share) {
+        showToast('Đã sao chép liên kết')
+      }
+    } catch (error) {
+      console.error('Share failed:', error)
+    }
   }
 
   if (loading) {
@@ -303,11 +335,32 @@ export default function MarketplaceDetailPage() {
               )}
 
               <div className="space-y-3">
-                <button className="w-full btn btn-primary">
+                <button 
+                  onClick={handleContactSeller}
+                  className="w-full btn btn-primary"
+                >
                   📞 Liên hệ người bán
                 </button>
-                <button className="w-full btn btn-secondary">
+                <button 
+                  onClick={handleSendMessage}
+                  className="w-full btn btn-secondary"
+                >
                   💬 Gửi tin nhắn
+                </button>
+              </div>
+              
+              <div className="mt-4 flex space-x-2">
+                <button 
+                  onClick={handleCopyLink}
+                  className="flex-1 btn btn-secondary text-sm"
+                >
+                  📋 Copy link
+                </button>
+                <button 
+                  onClick={handleShare}
+                  className="flex-1 btn btn-secondary text-sm"
+                >
+                  📱 Chia sẻ
                 </button>
               </div>
             </div>

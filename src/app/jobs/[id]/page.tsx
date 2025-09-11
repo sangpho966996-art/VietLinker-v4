@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+import { copyToClipboard, shareContent, saveToBookmarks, removeFromBookmarks, isBookmarked, showToast } from '@/lib/contact-utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,6 +41,7 @@ export default function JobDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [bookmarked, setBookmarked] = useState(false)
 
   const categories = [
     { value: 'nails', label: 'Tiệm Nails' },
@@ -103,6 +105,56 @@ export default function JobDetailPage() {
       loadPost()
     }
   }, [jobId, loadPost])
+
+  useEffect(() => {
+    if (post) {
+      setBookmarked(isBookmarked(post.id.toString(), 'jobs'))
+    }
+  }, [post])
+
+  const handleContactEmployer = () => {
+    if (seller?.phone) {
+      window.location.href = `tel:${seller.phone}`
+    } else {
+      window.location.href = `/contact?type=job&id=${post?.id}`
+    }
+  }
+
+  const handleSendMessage = () => {
+    window.location.href = `/contact?type=job&id=${post?.id}&subject=${encodeURIComponent(`Quan tâm đến công việc: ${post?.title || ''}`)}`
+  }
+
+  const handleSaveJob = () => {
+    if (!post) return
+    if (bookmarked) {
+      removeFromBookmarks(post.id.toString(), 'jobs')
+      setBookmarked(false)
+      showToast('Đã bỏ lưu công việc')
+    } else {
+      saveToBookmarks(post.id.toString(), 'jobs', post.title)
+      setBookmarked(true)
+      showToast('Đã lưu công việc')
+    }
+  }
+
+  const handleCopyLink = async () => {
+    const success = await copyToClipboard(window.location.href)
+    if (success) {
+      showToast('Đã sao chép liên kết')
+    }
+  }
+
+  const handleShare = async () => {
+    if (!post) return
+    try {
+      await shareContent(post.title, window.location.href)
+      if (!navigator.share) {
+        showToast('Đã sao chép liên kết')
+      }
+    } catch (error) {
+      console.error('Share failed:', error)
+    }
+  }
 
   const formatSalary = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Thỏa thuận'
@@ -308,14 +360,23 @@ export default function JobDetailPage() {
               )}
 
               <div className="space-y-3">
-                <button className="w-full btn btn-primary bg-red-600 hover:bg-red-700">
+                <button 
+                  onClick={handleContactEmployer}
+                  className="w-full btn btn-primary bg-red-600 hover:bg-red-700"
+                >
                   📞 Liên hệ nhà tuyển dụng
                 </button>
-                <button className="w-full btn btn-secondary">
+                <button 
+                  onClick={handleSendMessage}
+                  className="w-full btn btn-secondary"
+                >
                   💬 Gửi tin nhắn
                 </button>
-                <button className="w-full btn btn-secondary">
-                  ❤️ Lưu tin đăng
+                <button 
+                  onClick={handleSaveJob}
+                  className={`w-full btn ${bookmarked ? 'btn-primary bg-yellow-600 hover:bg-yellow-700' : 'btn-secondary'}`}
+                >
+                  {bookmarked ? '⭐ Đã lưu' : '❤️ Lưu tin đăng'}
                 </button>
               </div>
             </div>
@@ -324,10 +385,16 @@ export default function JobDetailPage() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Chia sẻ tin đăng</h3>
               <div className="flex space-x-2">
-                <button className="flex-1 btn btn-secondary text-sm">
+                <button 
+                  onClick={handleCopyLink}
+                  className="flex-1 btn btn-secondary text-sm"
+                >
                   📋 Copy link
                 </button>
-                <button className="flex-1 btn btn-secondary text-sm">
+                <button 
+                  onClick={handleShare}
+                  className="flex-1 btn btn-secondary text-sm"
+                >
                   📱 Chia sẻ
                 </button>
               </div>

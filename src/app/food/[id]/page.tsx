@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase, BusinessHours } from '@/lib/supabase'
+import { copyToClipboard, shareContent, showToast } from '@/lib/contact-utils'
 
 interface BusinessProfile {
   id: number
@@ -165,6 +166,38 @@ export default function FoodBusinessPage() {
   const averageRating = reviews.length > 0 
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
     : 0
+
+  const handleReservation = () => {
+    window.location.href = `/contact?type=food&id=${business?.id}&service=reservation&subject=${encodeURIComponent(`Đặt bàn tại ${business?.business_name || ''}`)}`
+  }
+
+  const handleDirections = () => {
+    if (business?.address) {
+      const encodedAddress = encodeURIComponent(business.address)
+      window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank')
+    } else {
+      showToast('Không có thông tin địa chỉ')
+    }
+  }
+
+  const handleCopyLink = async () => {
+    const success = await copyToClipboard(window.location.href)
+    if (success) {
+      showToast('Đã sao chép liên kết')
+    }
+  }
+
+  const handleShare = async () => {
+    if (!business) return
+    try {
+      await shareContent(business.business_name, window.location.href)
+      if (!navigator.share) {
+        showToast('Đã sao chép liên kết')
+      }
+    } catch (error) {
+      console.error('Share failed:', error)
+    }
+  }
 
   if (loading) {
     return (
@@ -518,10 +551,16 @@ export default function FoodBusinessPage() {
                     Gọi ngay
                   </a>
                 )}
-                <button className="w-full btn btn-secondary">
+                <button 
+                  onClick={handleReservation}
+                  className="w-full btn btn-secondary"
+                >
                   Đặt bàn
                 </button>
-                <button className="w-full btn btn-secondary">
+                <button 
+                  onClick={handleDirections}
+                  className="w-full btn btn-secondary"
+                >
                   Chỉ đường
                 </button>
               </div>
@@ -548,6 +587,25 @@ export default function FoodBusinessPage() {
                 </div>
               </div>
             )}
+            
+            {/* Share Section */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Chia sẻ</h3>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={handleCopyLink}
+                  className="flex-1 btn btn-secondary text-sm"
+                >
+                  📋 Copy link
+                </button>
+                <button 
+                  onClick={handleShare}
+                  className="flex-1 btn btn-secondary text-sm"
+                >
+                  📱 Chia sẻ
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

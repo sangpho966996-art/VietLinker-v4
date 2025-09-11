@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { supabase, BusinessHours } from '@/lib/supabase'
+import { copyToClipboard, shareContent, showToast } from '@/lib/contact-utils'
 
 interface BusinessProfile {
   id: number
@@ -139,6 +140,41 @@ export default function ServiceProfilePage() {
       if (dayHours.closed) return { day: label, hours: 'Đóng cửa' }
       return { day: label, hours: `${dayHours.open} - ${dayHours.close}` }
     })
+  }
+
+  const handleCallNow = () => {
+    if (business?.phone) {
+      window.location.href = `tel:${business.phone}`
+    } else {
+      showToast('Không có số điện thoại')
+    }
+  }
+
+  const handleSendMessage = () => {
+    window.location.href = `/contact?type=service&id=${business?.id}&subject=${encodeURIComponent(`Liên hệ về dịch vụ: ${business?.business_name || ''}`)}`
+  }
+
+  const handleBookAppointment = () => {
+    window.location.href = `/contact?type=service&id=${business?.id}&service=appointment&subject=${encodeURIComponent(`Đặt lịch hẹn tại ${business?.business_name || ''}`)}`
+  }
+
+  const handleCopyLink = async () => {
+    const success = await copyToClipboard(window.location.href)
+    if (success) {
+      showToast('Đã sao chép liên kết')
+    }
+  }
+
+  const handleShare = async () => {
+    if (!business) return
+    try {
+      await shareContent(business.business_name, window.location.href)
+      if (!navigator.share) {
+        showToast('Đã sao chép liên kết')
+      }
+    } catch (error) {
+      console.error('Share failed:', error)
+    }
   }
 
   if (loading) {
@@ -394,17 +430,26 @@ export default function ServiceProfilePage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Liên hệ</h3>
               
               <div className="space-y-3 mb-6">
-                <button className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center">
+                <button 
+                  onClick={handleCallNow}
+                  className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center"
+                >
                   <span className="mr-2">📞</span>
                   Gọi ngay
                 </button>
                 
-                <button className="w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
+                <button 
+                  onClick={handleSendMessage}
+                  className="w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center"
+                >
                   <span className="mr-2">💬</span>
                   Nhắn tin
                 </button>
                 
-                <button className="w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
+                <button 
+                  onClick={handleBookAppointment}
+                  className="w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center"
+                >
                   <span className="mr-2">📅</span>
                   Đặt lịch
                 </button>
@@ -432,6 +477,24 @@ export default function ServiceProfilePage() {
                       </a>
                     </div>
                   )}
+                </div>
+              </div>
+              
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <h4 className="font-medium text-gray-900 mb-2">Chia sẻ</h4>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={handleCopyLink}
+                    className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                  >
+                    📋 Copy link
+                  </button>
+                  <button 
+                    onClick={handleShare}
+                    className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                  >
+                    📱 Chia sẻ
+                  </button>
                 </div>
               </div>
             </div>
