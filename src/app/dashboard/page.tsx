@@ -215,11 +215,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Hoạt động gần đây</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Tin đăng của tôi</h2>
+            <Link href="/my-posts" className="btn btn-primary">
+              Xem tất cả tin đăng
+            </Link>
+          </div>
           <div className="text-center py-8">
-            <p className="text-gray-500">Chưa có hoạt động nào</p>
+            <p className="text-gray-500">Xem và quản lý tất cả tin đăng của bạn</p>
             <p className="text-sm text-gray-400 mt-2">
-              Bắt đầu bằng cách đăng tin hoặc tìm kiếm dịch vụ
+              Marketplace, Việc làm, Bất động sản
             </p>
           </div>
         </div>

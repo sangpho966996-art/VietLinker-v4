@@ -61,6 +61,7 @@ export type Database = {
           description: string | null
           price: number | null
           category: string
+          condition: string | null
           location: string | null
           images: string[] | null
           status: string
@@ -75,6 +76,7 @@ export type Database = {
           description?: string | null
           price?: number | null
           category: string
+          condition?: string | null
           location?: string | null
           images?: string[] | null
           status?: string
@@ -89,6 +91,7 @@ export type Database = {
           description?: string | null
           price?: number | null
           category?: string
+          condition?: string | null
           location?: string | null
           images?: string[] | null
           status?: string
@@ -108,6 +111,8 @@ export type Database = {
           salary_min: number | null
           salary_max: number | null
           job_type: string
+          category: string | null
+          images: string[] | null
           status: string
           expires_at: string | null
           created_at: string
@@ -123,6 +128,8 @@ export type Database = {
           salary_min?: number | null
           salary_max?: number | null
           job_type: string
+          category?: string | null
+          images?: string[] | null
           status?: string
           expires_at?: string | null
           created_at?: string
@@ -138,6 +145,8 @@ export type Database = {
           salary_min?: number | null
           salary_max?: number | null
           job_type?: string
+          category?: string | null
+          images?: string[] | null
           status?: string
           expires_at?: string | null
           created_at?: string
@@ -151,7 +160,7 @@ export type Database = {
           title: string
           description: string | null
           price: number | null
-          property_type: string
+          property_type: 'sale' | 'rent' | 'room-rental'
           bedrooms: number | null
           bathrooms: number | null
           square_feet: number | null
@@ -171,7 +180,7 @@ export type Database = {
           title: string
           description?: string | null
           price?: number | null
-          property_type: string
+          property_type: 'sale' | 'rent' | 'room-rental'
           bedrooms?: number | null
           bathrooms?: number | null
           square_feet?: number | null
@@ -191,7 +200,7 @@ export type Database = {
           title?: string
           description?: string | null
           price?: number | null
-          property_type?: string
+          property_type?: 'sale' | 'rent' | 'room-rental'
           bedrooms?: number | null
           bathrooms?: number | null
           square_feet?: number | null
