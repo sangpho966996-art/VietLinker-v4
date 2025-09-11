@@ -1,5 +1,5 @@
 
-SELECT id, email, credits FROM auth.users 
+SELECT auth.users.id, auth.users.email, public.users.credits FROM auth.users 
 JOIN public.users ON auth.users.id = public.users.id 
 WHERE auth.users.email = 'sangpho966996@gmail.com';
 
@@ -9,6 +9,6 @@ SELECT public.add_credits(
   'manual_admin_credit'
 );
 
-SELECT id, email, credits FROM auth.users 
+SELECT auth.users.id, auth.users.email, public.users.credits FROM auth.users 
 JOIN public.users ON auth.users.id = public.users.id 
 WHERE auth.users.email = 'sangpho966996@gmail.com';
