@@ -65,7 +65,9 @@ export default function MyPostsPage() {
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         
         if (userError) {
-          throw new Error(`Failed to get user: ${userError.message}`)
+          console.error('Failed to get user:', userError.message)
+          router.push('/login')
+          return
         }
 
         if (!user) {
@@ -76,7 +78,8 @@ export default function MyPostsPage() {
         setUser(user)
         await loadPosts(user.id)
       } catch (err) {
-        console.error('Error:', err)
+        console.error('Error loading user data:', err)
+        router.push('/login')
       } finally {
         setLoading(false)
       }
@@ -136,6 +139,35 @@ export default function MyPostsPage() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN')
+  }
+
+  const handleEditPost = (type: 'marketplace' | 'jobs' | 'real-estate', id: string) => {
+    router.push(`/${type}/edit/${id}`)
+  }
+
+  const handleDeletePost = async (type: 'marketplace' | 'jobs' | 'real-estate', id: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa tin đăng này?')) {
+      return
+    }
+
+    try {
+      const tableName = type === 'marketplace' ? 'marketplace_posts' : 
+                       type === 'jobs' ? 'job_posts' : 'real_estate_posts'
+      
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      if (user) {
+        await loadPosts(user.id)
+      }
+    } catch (err) {
+      console.error('Error deleting post:', err)
+      alert('Có lỗi xảy ra khi xóa tin đăng')
+    }
   }
 
   if (loading) {
@@ -240,9 +272,23 @@ export default function MyPostsPage() {
                           <span className="text-lg font-bold text-red-600">{formatPrice(post.price)}</span>
                           <span className="text-sm text-gray-500">{post.condition}</span>
                         </div>
-                        <div className="flex justify-between items-center text-sm text-gray-500">
+                        <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
                           <span>{post.category}</span>
                           <span>{formatDate(post.created_at)}</span>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditPost('marketplace', post.id)}
+                            className="flex-1 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                          >
+                            Chỉnh sửa
+                          </button>
+                          <button
+                            onClick={() => handleDeletePost('marketplace', post.id)}
+                            className="flex-1 px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            Xóa
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -304,6 +350,20 @@ export default function MyPostsPage() {
                           )}
                         </div>
                       )}
+                      <div className="flex space-x-2 mt-4">
+                        <button
+                          onClick={() => handleEditPost('jobs', post.id)}
+                          className="flex-1 px-3 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          Chỉnh sửa
+                        </button>
+                        <button
+                          onClick={() => handleDeletePost('jobs', post.id)}
+                          className="flex-1 px-3 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                        >
+                          Xóa
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -345,9 +405,23 @@ export default function MyPostsPage() {
                             {post.square_feet && <span>{post.square_feet} ft²</span>}
                           </div>
                         </div>
-                        <div className="flex justify-between items-center text-sm text-gray-500">
+                        <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
                           <span>{post.city}, {post.state}</span>
                           <span>{formatDate(post.created_at)}</span>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditPost('real-estate', post.id)}
+                            className="flex-1 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                          >
+                            Chỉnh sửa
+                          </button>
+                          <button
+                            onClick={() => handleDeletePost('real-estate', post.id)}
+                            className="flex-1 px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            Xóa
+                          </button>
                         </div>
                       </div>
                     </div>
