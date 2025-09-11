@@ -3,7 +3,6 @@
 import React, { Suspense } from 'react'
 import Header from '@/components/Header'
 
-export const dynamic = 'force-dynamic'
 
 export default function TermsPage() {
   return (

@@ -13,7 +13,7 @@ interface Business {
   state: string | null
 }
 
-export default function FeaturedBusinesses() {
+export default React.memo(function FeaturedBusinesses() {
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -167,4 +167,4 @@ export default function FeaturedBusinesses() {
       </div>
     </section>
   )
-}
+})
