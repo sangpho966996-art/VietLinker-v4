@@ -127,7 +127,7 @@ export default function RealEstateDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Đang tải tin đăng...</p>
         </div>
       </div>
@@ -139,7 +139,7 @@ export default function RealEstateDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error || 'Không tìm thấy tin đăng'}</p>
-          <Link href="/real-estate" className="btn btn-primary bg-blue-600 hover:bg-blue-700">
+          <Link href="/real-estate" className="btn btn-primary bg-red-600 hover:bg-red-700">
             Quay lại Bất động sản
           </Link>
         </div>
@@ -155,7 +155,7 @@ export default function RealEstateDetailPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">V</span>
                 </div>
                 <span className="text-xl font-bold text-gray-900">VietLinker</span>
@@ -215,7 +215,7 @@ export default function RealEstateDetailPage() {
                             key={index}
                             onClick={() => setSelectedImageIndex(index)}
                             className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                              selectedImageIndex === index ? 'border-blue-600' : 'border-gray-200'
+                              selectedImageIndex === index ? 'border-red-600' : 'border-gray-200'
                             }`}
                           >
                             <Image
@@ -241,7 +241,7 @@ export default function RealEstateDetailPage() {
             {/* Post Details */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="mb-4">
-                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">
+                <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
                   {getPropertyTypeLabel(post.property_type)}
                 </span>
               </div>
@@ -249,7 +249,7 @@ export default function RealEstateDetailPage() {
               <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
               
               <div className="flex items-center justify-between mb-6">
-                <span className="text-3xl font-bold text-blue-600">
+                <span className="text-3xl font-bold text-red-600">
                   {formatPrice(post.price)}
                 </span>
               </div>
@@ -306,7 +306,7 @@ export default function RealEstateDetailPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Thông tin người đăng</h3>
               
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mr-3">
                   <span className="text-white font-medium">
                     {seller?.full_name?.charAt(0).toUpperCase() || seller?.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
@@ -327,7 +327,7 @@ export default function RealEstateDetailPage() {
               )}
 
               <div className="space-y-3">
-                <button className="w-full btn btn-primary bg-blue-600 hover:bg-blue-700">
+                <button className="w-full btn btn-primary bg-red-600 hover:bg-red-700">
                   📞 Liên hệ người đăng
                 </button>
                 <button className="w-full btn btn-secondary">
@@ -378,7 +378,7 @@ export default function RealEstateDetailPage() {
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold text-lg mb-2 line-clamp-2">{relatedPost.title}</h3>
-                    <span className="text-blue-600 font-bold">
+                    <span className="text-red-600 font-bold">
                       {formatPrice(relatedPost.price)}
                     </span>
                     {(relatedPost.address || relatedPost.city) && (
