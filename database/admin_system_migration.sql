@@ -10,7 +10,7 @@ ALTER TABLE public.business_profiles ADD COLUMN admin_status TEXT DEFAULT 'pendi
 
 CREATE TABLE public.admin_actions (
   id BIGSERIAL PRIMARY KEY,
-  admin_user_id TEXT REFERENCES public.users(id) NOT NULL,
+  admin_user_id UUID REFERENCES public.users(id) NOT NULL,
   action_type TEXT NOT NULL, -- 'approve_post', 'reject_post', 'add_credits', 'block_user', etc.
   target_type TEXT NOT NULL, -- 'user', 'marketplace_post', 'job_post', 'business_profile', etc.
   target_id TEXT NOT NULL,
@@ -20,14 +20,14 @@ CREATE TABLE public.admin_actions (
 
 CREATE TABLE public.content_reports (
   id BIGSERIAL PRIMARY KEY,
-  reporter_user_id TEXT REFERENCES public.users(id) NOT NULL,
+  reporter_user_id UUID REFERENCES public.users(id) NOT NULL,
   content_type TEXT NOT NULL, -- 'marketplace_post', 'job_post', etc.
   content_id TEXT NOT NULL,
   reason TEXT NOT NULL,
   description TEXT,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'resolved', 'dismissed')),
   admin_notes TEXT,
-  admin_user_id TEXT REFERENCES public.users(id),
+  admin_user_id UUID REFERENCES public.users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
