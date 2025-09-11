@@ -21,7 +21,10 @@ interface ContentReport {
   users?: {
     email: string
     full_name: string | null
-  }
+  } | {
+    email: string
+    full_name: string | null
+  }[]
 }
 
 export default function AdminReports() {
@@ -40,7 +43,7 @@ export default function AdminReports() {
         .select(`
           id, reporter_user_id, content_type, content_id, reason, description, 
           status, admin_notes, created_at,
-          users!inner(email, full_name)
+          users(email, full_name)
         `)
         .order('created_at', { ascending: false })
 
@@ -53,8 +56,8 @@ export default function AdminReports() {
       if (data) {
         const reportsWithUser = data.map(report => ({
           ...report,
-          reporter_name: report.users?.full_name || report.users?.email || 'Unknown User',
-          reporter_email: report.users?.email || ''
+          reporter_name: (report.users as any)?.full_name || (report.users as any)?.email || 'Unknown User',
+          reporter_email: (report.users as any)?.email || ''
         }))
         setReports(reportsWithUser)
       }

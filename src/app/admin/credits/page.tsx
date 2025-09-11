@@ -24,7 +24,10 @@ interface CreditTransaction {
   users: {
     email: string
     full_name: string | null
-  }
+  } | {
+    email: string
+    full_name: string | null
+  }[]
 }
 
 export default function AdminCredits() {
@@ -73,7 +76,7 @@ export default function AdminCredits() {
         .from('credit_transactions')
         .select(`
           id, user_id, amount, type, description, created_at,
-          users!inner(email, full_name)
+          users(email, full_name)
         `)
         .order('created_at', { ascending: false })
         .limit(50)
@@ -275,9 +278,9 @@ export default function AdminCredits() {
                     <tr key={transaction.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {transaction.users.full_name || transaction.users.email}
+                          {(transaction.users as any)?.full_name || (transaction.users as any)?.email}
                         </div>
-                        <div className="text-sm text-gray-500">{transaction.users.email}</div>
+                        <div className="text-sm text-gray-500">{(transaction.users as any)?.email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`text-sm font-medium ${

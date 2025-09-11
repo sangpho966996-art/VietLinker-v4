@@ -19,7 +19,10 @@ interface BusinessProfile {
   users?: {
     email: string
     full_name: string | null
-  }
+  } | {
+    email: string
+    full_name: string | null
+  }[]
 }
 
 export default function AdminBusinesses() {
@@ -37,7 +40,7 @@ export default function AdminBusinesses() {
         .from('business_profiles')
         .select(`
           id, business_name, business_type, description, user_id, admin_status, created_at,
-          users!inner(email, full_name)
+          users(email, full_name)
         `)
         .order('created_at', { ascending: false })
 
@@ -50,8 +53,8 @@ export default function AdminBusinesses() {
       if (data) {
         const businessesWithUser = data.map(business => ({
           ...business,
-          user_email: business.users?.email || '',
-          user_name: business.users?.full_name || business.users?.email || 'Unknown User'
+          user_email: Array.isArray(business.users) ? business.users[0]?.email || '' : (business.users as any)?.email || '',
+          user_name: Array.isArray(business.users) ? (business.users[0]?.full_name || business.users[0]?.email || 'Unknown User') : ((business.users as any)?.full_name || (business.users as any)?.email || 'Unknown User')
         }))
         setBusinesses(businessesWithUser)
       }

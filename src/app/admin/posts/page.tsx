@@ -19,7 +19,10 @@ interface PendingPost {
   users?: {
     email: string
     full_name: string | null
-  }
+  } | {
+    email: string
+    full_name: string | null
+  }[]
 }
 
 export default function AdminPosts() {
@@ -41,7 +44,7 @@ export default function AdminPosts() {
           .from(table)
           .select(`
             id, title, description, user_id, admin_status, created_at,
-            users!inner(email, full_name)
+            users(email, full_name)
           `)
           .order('created_at', { ascending: false })
 
@@ -55,8 +58,8 @@ export default function AdminPosts() {
           const postsWithTable = data.map(post => ({
             ...post,
             table_name: table,
-            user_email: post.users?.email || '',
-            user_name: post.users?.full_name || post.users?.email || 'Unknown User'
+            user_email: (post.users as any)?.email || '',
+            user_name: (post.users as any)?.full_name || (post.users as any)?.email || 'Unknown User'
           }))
           allPosts.push(...postsWithTable)
         }
