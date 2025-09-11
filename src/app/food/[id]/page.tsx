@@ -140,7 +140,7 @@ export default function FoodBusinessPage() {
   }
 
   const formatHours = (hours: any) => {
-    if (!hours) return {}
+    if (!hours) return []
     
     const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
     const dayNames = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật']
