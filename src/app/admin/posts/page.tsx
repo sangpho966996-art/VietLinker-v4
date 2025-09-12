@@ -6,6 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout'
 
 export const dynamic = 'force-dynamic'
 
+
 interface PendingPost {
   id: string
   title: string
@@ -36,12 +37,21 @@ export default function AdminPosts() {
       const allPosts: PendingPost[] = []
 
       for (const table of tables) {
+        let selectFields = `
+          id, title, description, user_id, admin_status, created_at,
+          users(email, full_name)
+        `
+        
+        if (table === 'business_profiles') {
+          selectFields = `
+            id, business_name, description, user_id, admin_status, created_at,
+            users(email, full_name)
+          `
+        }
+
         const query = supabase
           .from(table)
-          .select(`
-            id, title, description, user_id, admin_status, created_at,
-            users(email, full_name)
-          `)
+          .select(selectFields)
           .order('created_at', { ascending: false })
 
         if (filter !== 'all') {
@@ -51,11 +61,17 @@ export default function AdminPosts() {
         const { data } = await query
 
         if (data) {
-          const postsWithTable = data.map(post => ({
-            ...post,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const postsWithTable = data.map((post: any): PendingPost => ({
+            id: post.id,
+            title: table === 'business_profiles' ? (post.business_name || '') : (post.title || ''),
+            description: post.description || '',
+            user_id: post.user_id,
+            admin_status: post.admin_status,
+            created_at: post.created_at,
             table_name: table,
-            user_email: Array.isArray(post.users) ? post.users[0]?.email || '' : (post.users as { email: string; full_name: string | null })?.email || '',
-            user_name: Array.isArray(post.users) ? (post.users[0]?.full_name || post.users[0]?.email || 'Unknown User') : ((post.users as { email: string; full_name: string | null })?.full_name || (post.users as { email: string; full_name: string | null })?.email || 'Unknown User')
+            user_email: Array.isArray(post.users) ? post.users[0]?.email || '' : post.users?.email || '',
+            user_name: Array.isArray(post.users) ? (post.users[0]?.full_name || post.users[0]?.email || 'Unknown User') : (post.users?.full_name || post.users?.email || 'Unknown User')
           }))
           allPosts.push(...postsWithTable)
         }
