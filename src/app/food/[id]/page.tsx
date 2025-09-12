@@ -322,10 +322,21 @@ export default function FoodBusinessPage() {
                         {items.map((item) => (
                           <div
                             key={item.id}
-                            className={`flex justify-between items-start p-4 rounded-lg ${
+                            className={`flex items-start space-x-4 p-4 rounded-lg ${
                               item.available ? 'bg-gray-50' : 'bg-gray-100 opacity-60'
                             }`}
                           >
+                            {item.image_url && (
+                              <div className="flex-shrink-0">
+                                <Image
+                                  src={item.image_url}
+                                  alt={item.name}
+                                  width={80}
+                                  height={80}
+                                  className="w-20 h-20 object-cover rounded-lg"
+                                />
+                              </div>
+                            )}
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 mb-1">
                                 <h3 className={`font-medium ${
