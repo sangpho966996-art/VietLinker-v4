@@ -71,7 +71,6 @@ export default function FoodBusinessPage() {
   const [gallery, setGallery] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('menu')
 
   const loadBusinessData = useCallback(async () => {
     try {
@@ -156,49 +155,35 @@ export default function FoodBusinessPage() {
     })
   }
 
-  const groupedMenuItems = menuItems.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = []
-    }
-    acc[item.category].push(item)
-    return acc
-  }, {} as Record<string, MenuItem[]>)
 
   const averageRating = reviews.length > 0 
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
     : 0
 
-  const handleReservation = () => {
-    window.location.href = `/contact?type=food&id=${business?.id}&service=reservation&subject=${encodeURIComponent(`Đặt bàn tại ${business?.business_name || ''}`)}`
+  const handleCall = (phone: string) => {
+    if (phone) {
+      window.location.href = `tel:${phone}`
+    }
   }
 
-  const handleDirections = () => {
-    if (business?.address) {
-      const encodedAddress = encodeURIComponent(business.address)
+  const handleBooking = (businessName: string, phone: string) => {
+    if (phone) {
+      window.location.href = `tel:${phone}`
+    }
+  }
+
+
+  const handleDirections = (address?: string) => {
+    const targetAddress = address || business?.address
+    if (targetAddress) {
+      const encodedAddress = encodeURIComponent(targetAddress)
       window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank')
     } else {
       showToast('Không có thông tin địa chỉ')
     }
   }
 
-  const handleCopyLink = async () => {
-    const success = await copyToClipboard(window.location.href)
-    if (success) {
-      showToast('Đã sao chép liên kết')
-    }
-  }
 
-  const handleShare = async () => {
-    if (!business) return
-    try {
-      await shareContent(business.business_name, window.location.href)
-      if (!navigator.share) {
-        showToast('Đã sao chép liên kết')
-      }
-    } catch (error) {
-      console.error('Share failed:', error)
-    }
-  }
 
   if (loading) {
     return (
@@ -231,200 +216,220 @@ export default function FoodBusinessPage() {
         <Header />
       </Suspense>
       
-      {/* Enhanced Hero Section */}
-      <div className="relative h-96 bg-gradient-to-r from-red-600 to-red-700 overflow-hidden">
+      {/* Yelp-Inspired Hero Section */}
+      <div className="relative h-[500px] overflow-hidden">
         {business.cover_image ? (
           <Image
             src={business.cover_image}
-            alt={business.business_name}
+            alt={`${business.business_name} cover`}
             className="w-full h-full object-cover"
             fill
             sizes="100vw"
             unoptimized
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-red-600 to-red-700">
-            <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-white">
-                <div className="w-24 h-24 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
-                  <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H9a1 1 0 110-2H8.771l.062-.245.123-.489.804-.804A1 1 0 0110.5 8l.5.5a1 1 0 11-1.414 1.414l-.123.123-.489.804-.245.062z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-semibold">Nhà hàng Việt Nam</h2>
-              </div>
-            </div>
+          <div className="w-full h-full bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900">
+            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10"></div>
         
-        {/* Business Info Overlay */}
+        {/* Business Info Overlay - Yelp Style */}
         <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-              <div className="flex items-center space-x-6">
-                <div className="flex-shrink-0">
-                  <div className="w-20 h-20 bg-white rounded-full p-1">
-                    <div className="w-full h-full bg-red-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-xl">
-                        {business?.business_name?.charAt(0) || 'R'}
-                      </span>
-                    </div>
-                  </div>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-white">
+              <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">
+                {business.business_name}
+              </h1>
+              
+              {/* Rating and Reviews */}
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="flex items-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg
+                      key={star}
+                      className={`w-6 h-6 ${
+                        star <= (averageRating || 4.5) ? 'text-yellow-400' : 'text-gray-400'
+                      }`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                  <span className="ml-2 text-lg font-medium">
+                    {averageRating ? averageRating.toFixed(1) : '4.5'}
+                  </span>
+                  <span className="text-gray-300">
+                    ({reviews.length || 0} đánh giá)
+                  </span>
                 </div>
-                <div className="flex-1">
-                  <h1 className="text-4xl font-bold text-white mb-3">
-                    {business.business_name}
-                  </h1>
-                  <div className="flex flex-wrap items-center text-white/90 space-x-6 text-lg">
-                    <span className="flex items-center">
-                      <span className="mr-2">📍</span>
-                      {business?.address || 'Địa chỉ đang cập nhật'}
-                    </span>
-                    <span className="flex items-center">
-                      <span className="mr-2">📞</span>
-                      {business?.phone || 'Số điện thoại đang cập nhật'}
-                    </span>
-                    <span className="flex items-center">
-                      <span className="mr-2">🕒</span>
-                      Đang mở cửa
-                    </span>
-                  </div>
-                </div>
+                <span className="text-gray-300">•</span>
+                <span className="text-lg">Nhà hàng Việt Nam</span>
+                <span className="text-gray-300">•</span>
+                <span className="text-lg">$$</span>
+              </div>
+
+              {/* Business Details */}
+              <div className="flex flex-wrap items-center text-lg space-x-6 mb-6">
+                <span className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                  {business?.address || 'Địa chỉ đang cập nhật'}
+                </span>
+                <span className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                  </svg>
+                  {business?.phone || 'Số điện thoại đang cập nhật'}
+                </span>
+                <span className="flex items-center text-green-400">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                  </svg>
+                  Đang mở cửa
+                </span>
+              </div>
+
+              {/* Action Buttons - Yelp Style */}
+              <div className="flex flex-wrap gap-3">
+                <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  Viết đánh giá
+                </button>
+                <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-white/30 flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                  </svg>
+                  Thêm ảnh
+                </button>
+                <button 
+                  onClick={() => shareContent(business.business_name, window.location.href)}
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-white/30 flex items-center"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                  </svg>
+                  Chia sẻ
+                </button>
+                <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-white/30 flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                  </svg>
+                  Lưu
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <nav className="flex space-x-8">
-            {['menu', 'about', 'photos', 'reviews'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                  activeTab === tab
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {tab === 'menu' && 'Thực đơn'}
-                {tab === 'about' && 'Thông tin'}
-                {tab === 'photos' && 'Hình ảnh'}
-                {tab === 'reviews' && 'Đánh giá'}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      {/* Main Content - Yelp Style Layout */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Menu Tab */}
-            {activeTab === 'menu' && (
-              <div className="space-y-6">
-                {Object.keys(groupedMenuItems).length === 0 ? (
-                  <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Thực đơn đang được cập nhật
-                    </h3>
-                    <p className="text-gray-600">
-                      Vui lòng liên hệ trực tiếp với nhà hàng để biết thêm thông tin về món ăn
-                    </p>
+          {/* Left Column - Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Menu Section - Yelp Style */}
+            {menuItems.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-900">Menu</h2>
+                    <button className="text-red-600 hover:text-red-700 font-medium">
+                      Xem menu đầy đủ →
+                    </button>
                   </div>
-                ) : (
-                  Object.entries(groupedMenuItems).map(([category, items]) => (
-                    <div key={category} className="bg-white rounded-lg shadow-md p-6">
-                      <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                        {category}
-                      </h2>
-                      <div className="space-y-4">
-                        {items.map((item) => (
-                          <div
-                            key={item.id}
-                            className={`flex items-start space-x-4 p-4 rounded-lg ${
-                              item.available ? 'bg-gray-50' : 'bg-gray-100 opacity-60'
-                            }`}
-                          >
-                            {item.image_url && (
-                              <div className="flex-shrink-0">
-                                <Image
-                                  src={item.image_url}
-                                  alt={item.name}
-                                  width={80}
-                                  height={80}
-                                  className="w-20 h-20 object-cover rounded-lg"
-                                  unoptimized
-                                />
-                              </div>
-                            )}
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <h3 className={`font-medium ${
-                                  item.available ? 'text-gray-900' : 'text-gray-500'
-                                }`}>
-                                  {item.name}
-                                </h3>
-                                {!item.available && (
-                                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
-                                    Hết hàng
-                                  </span>
-                                )}
-                              </div>
-                              {item.description && (
-                                <p className={`text-sm ${
-                                  item.available ? 'text-gray-600' : 'text-gray-400'
-                                }`}>
-                                  {item.description}
-                                </p>
-                              )}
-                            </div>
-                            <div className="ml-4 text-right">
-                              <span className={`text-lg font-bold ${
-                                item.available ? 'text-red-600' : 'text-gray-400'
-                              }`}>
-                                ${item.price.toFixed(2)}
-                              </span>
-                            </div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Món phổ biến</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {menuItems.slice(0, 6).map((item) => (
+                      <div
+                        key={item.id}
+                        className={`flex space-x-4 p-4 rounded-lg border hover:shadow-md transition-shadow ${
+                          item.available ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-200 opacity-60'
+                        }`}
+                      >
+                        {item.image_url && (
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={item.image_url}
+                              alt={item.name}
+                              width={100}
+                              height={100}
+                              className="w-24 h-24 object-cover rounded-lg"
+                              unoptimized
+                            />
                           </div>
-                        ))}
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className={`font-semibold text-lg ${
+                              item.available ? 'text-gray-900' : 'text-gray-500'
+                            }`}>
+                              {item.name}
+                            </h4>
+                            <span className={`font-bold text-lg ml-2 ${
+                              item.available ? 'text-gray-900' : 'text-gray-400'
+                            }`}>
+                              {item.price.toLocaleString('vi-VN')}đ
+                            </span>
+                          </div>
+                          {item.description && (
+                            <p className={`text-sm line-clamp-2 ${
+                              item.available ? 'text-gray-600' : 'text-gray-400'
+                            }`}>
+                              {item.description}
+                            </p>
+                          )}
+                          {!item.available && (
+                            <span className="inline-block mt-2 text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">
+                              Hết hàng
+                            </span>
+                          )}
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                  
+                  {menuItems.length > 6 && (
+                    <div className="mt-6 text-center">
+                      <button className="text-red-600 hover:text-red-700 font-medium">
+                        Xem thêm {menuItems.length - 6} món khác
+                      </button>
                     </div>
-                  ))
-                )}
+                  )}
+                </div>
               </div>
             )}
 
-            {/* About Tab */}
-            {activeTab === 'about' && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Về {business.business_name}
-                </h2>
-                {business.description ? (
-                  <p className="text-gray-600 mb-6 whitespace-pre-line">
-                    {business.description}
-                  </p>
-                ) : (
-                  <p className="text-gray-500 mb-6">
-                    Nhà hàng chưa cập nhật mô tả
-                  </p>
-                )}
+            {/* About Section - Yelp Style */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Về {business.business_name}
+              </h2>
+              {business.description ? (
+                <p className="text-gray-600 mb-6 whitespace-pre-line leading-relaxed">
+                  {business.description}
+                </p>
+              ) : (
+                <p className="text-gray-500 mb-6">
+                  Nhà hàng chưa cập nhật mô tả
+                </p>
+              )}
 
-                {/* Business Hours */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Giờ mở cửa</h3>
+              {/* Business Hours */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Giờ mở cửa</h3>
+                <div className="bg-gray-50 rounded-lg p-4">
                   <div className="space-y-2">
                     {formatHours(business.hours).map((dayInfo: { day: string; hours: string }, index: number) => (
                       <div key={index} className="flex justify-between items-center py-1">
-                        <span className="text-gray-700">{dayInfo.day}</span>
+                        <span className="text-gray-700 font-medium">{dayInfo.day}</span>
                         <span className="text-gray-600">
                           {dayInfo.hours}
                         </span>
@@ -432,194 +437,182 @@ export default function FoodBusinessPage() {
                     ))}
                   </div>
                 </div>
+              </div>
+            </div>
 
-                {/* Contact Info */}
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Thông tin liên hệ</h3>
-                  <div className="space-y-2">
-                    {business.address && (
-                      <div className="flex items-start">
-                        <svg className="w-5 h-5 text-gray-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span className="text-gray-600">
-                          {business.address}, {business.city}, {business.state} {business.zip_code}
-                        </span>
-                      </div>
-                    )}
-                    {business.phone && (
-                      <div className="flex items-center">
-                        <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                        <a href={`tel:${business.phone}`} className="text-red-600 hover:text-red-700">
-                          {business.phone}
-                        </a>
-                      </div>
-                    )}
-                    {business.website && (
-                      <div className="flex items-center">
-                        <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9" />
-                        </svg>
-                        <a 
-                          href={business.website.startsWith('http') ? business.website : `https://${business.website}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          {business.website}
-                        </a>
-                      </div>
-                    )}
-                  </div>
+            {/* Photos Section - Yelp Style */}
+            {gallery.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Hình ảnh ({gallery.length})
+                  </h2>
+                  <button className="text-red-600 hover:text-red-700 font-medium">
+                    Xem tất cả →
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {gallery.slice(0, 8).map((image) => (
+                    <div key={image.id} className="aspect-square">
+                      <Image
+                        src={image.file_path}
+                        alt={image.caption || 'Hình ảnh nhà hàng'}
+                        className="w-full h-full object-cover rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        unoptimized
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Photos Tab */}
-            {activeTab === 'photos' && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Hình ảnh nhà hàng
+            {/* Reviews Section - Yelp Style */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Đánh giá và nhận xét
                 </h2>
-                {gallery.length === 0 ? (
-                  <div className="text-center py-8">
-                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p className="text-gray-500">Nhà hàng chưa có hình ảnh</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {gallery.map((image) => (
-                      <div key={image.id} className="aspect-square">
-                        <Image
-                          src={image.file_path}
-                          alt={image.caption || 'Hình ảnh nhà hàng'}
-                          className="w-full h-full object-cover rounded-lg"
-                          fill
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                          unoptimized
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                  Viết đánh giá
+                </button>
               </div>
-            )}
-
-            {/* Reviews Tab */}
-            {activeTab === 'reviews' && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Đánh giá từ khách hàng
-                </h2>
-                {reviews.length === 0 ? (
-                  <div className="text-center py-8">
-                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              
+              {reviews.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    <p className="text-gray-500">Chưa có đánh giá nào</p>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {reviews.map((review) => (
-                      <div key={review.id} className="border-b border-gray-200 pb-4 last:border-b-0">
-                        <div className="flex items-start space-x-3">
-                          <div className="flex-shrink-0">
-                            {review.users?.avatar_url ? (
-                              <Image
-                                src={review.users.avatar_url}
-                                alt={review.users.full_name || 'User'}
-                                className="w-10 h-10 rounded-full object-cover"
-                                width={40}
-                                height={40}
-                                unoptimized
-                              />
-                            ) : (
-                              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                                <span className="text-gray-600 text-sm font-medium">
-                                  {review.users?.full_name?.charAt(0) || 'U'}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <span className="font-medium text-gray-900">
-                                {review.users?.full_name || 'Khách hàng'}
-                              </span>
-                              <div className="flex text-yellow-400">
-                                {[...Array(5)].map((_, i) => (
-                                  <span key={i}>
-                                    {i < review.rating ? '★' : '☆'}
-                                  </span>
-                                ))}
-                              </div>
-                              <span className="text-sm text-gray-500">
-                                {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có đánh giá nào</h3>
+                  <p className="text-gray-500">Hãy là người đầu tiên đánh giá nhà hàng này!</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {reviews.slice(0, 3).map((review) => (
+                    <div key={review.id} className="border-b border-gray-100 pb-6 last:border-b-0">
+                      <div className="flex items-start space-x-4">
+                        <div className="flex-shrink-0">
+                          {review.users?.avatar_url ? (
+                            <Image
+                              src={review.users.avatar_url}
+                              alt={review.users.full_name || 'User'}
+                              className="w-12 h-12 rounded-full object-cover"
+                              width={48}
+                              height={48}
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                              <span className="text-red-600 text-lg font-semibold">
+                                {review.users?.full_name?.charAt(0) || 'U'}
                               </span>
                             </div>
-                            {review.comment && (
-                              <p className="text-gray-600">{review.comment}</p>
-                            )}
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="font-semibold text-gray-900">
+                              {review.users?.full_name || 'Khách hàng'}
+                            </span>
+                            <div className="flex text-yellow-400">
+                              {[...Array(5)].map((_, i) => (
+                                <svg key={i} className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d={i < review.rating 
+                                    ? "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                                    : "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                                  } />
+                                </svg>
+                              ))}
+                            </div>
+                            <span className="text-sm text-gray-500">
+                              {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                            </span>
                           </div>
+                          {review.comment && (
+                            <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                    </div>
+                  ))}
+                  
+                  {reviews.length > 3 && (
+                    <div className="text-center pt-4">
+                      <button className="text-red-600 hover:text-red-700 font-medium">
+                        Xem thêm {reviews.length - 3} đánh giá khác
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Sidebar */}
+          {/* Right Column - Sidebar - Yelp Style */}
           <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Liên hệ</h3>
-              <div className="space-y-3">
-                {business.phone && (
-                  <a
-                    href={`tel:${business.phone}`}
-                    className="w-full btn btn-primary flex items-center justify-center"
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    Gọi ngay
-                  </a>
-                )}
-                <button 
-                  onClick={handleReservation}
-                  className="w-full btn btn-secondary"
+            {/* Order/Contact Card */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Đặt món</h3>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Phí giao hàng</span>
+                  <span className="font-medium text-green-600">Miễn phí</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Thời gian giao hàng</span>
+                  <span className="font-medium">25-40 phút</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleBooking(business.business_name, business.phone)}
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 px-4 rounded-lg font-bold text-lg transition-colors mb-4"
+              >
+                Bắt đầu đặt món
+              </button>
+
+              <div className="space-y-2">
+                <button
+                  onClick={() => handleCall(business.phone)}
+                  className="w-full bg-white hover:bg-gray-50 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors border border-gray-300 flex items-center justify-center"
                 >
-                  Đặt bàn
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                  </svg>
+                  Gọi ngay
                 </button>
-                <button 
-                  onClick={handleDirections}
-                  className="w-full btn btn-secondary"
+                <button
+                  onClick={() => handleDirections(business.address)}
+                  className="w-full bg-white hover:bg-gray-50 text-gray-900 py-3 px-4 rounded-lg font-medium transition-colors border border-gray-300 flex items-center justify-center"
                 >
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
                   Chỉ đường
                 </button>
               </div>
             </div>
 
-            {/* Rating Summary */}
+            {/* Rating Summary - Yelp Style */}
             {reviews.length > 0 && (
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Đánh giá tổng quan</h3>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-red-600 mb-2">
+                  <div className="text-4xl font-bold text-red-600 mb-2">
                     {averageRating.toFixed(1)}
                   </div>
                   <div className="flex justify-center text-yellow-400 mb-2">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} className="text-xl">
-                        {i < Math.round(averageRating) ? '★' : '☆'}
-                      </span>
+                      <svg key={i} className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d={i < Math.round(averageRating) 
+                          ? "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                          : "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                        } />
+                      </svg>
                     ))}
                   </div>
                   <p className="text-gray-600 text-sm">
@@ -628,22 +621,58 @@ export default function FoodBusinessPage() {
                 </div>
               </div>
             )}
-            
-            {/* Share Section */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+
+            {/* Business Info Card */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Thông tin</h3>
+              <div className="space-y-3 text-sm">
+                {business.website && (
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.559-.499-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.559.499.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.497-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clipRule="evenodd" />
+                    </svg>
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700">
+                      {business.website.replace(/^https?:\/\//, '')}
+                    </a>
+                  </div>
+                )}
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                  </svg>
+                  <span className="text-gray-700">{business.phone || 'Chưa cập nhật'}</span>
+                </div>
+                <div className="flex items-start">
+                  <svg className="w-4 h-4 mr-3 mt-0.5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-gray-700">{business.address || 'Chưa cập nhật'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Share Card */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Chia sẻ</h3>
-              <div className="flex space-x-2">
-                <button 
-                  onClick={handleCopyLink}
-                  className="flex-1 btn btn-secondary text-sm"
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => copyToClipboard(window.location.href)}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                 >
-                  📋 Copy link
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                  </svg>
+                  Copy link
                 </button>
-                <button 
-                  onClick={handleShare}
-                  className="flex-1 btn btn-secondary text-sm"
+                <button
+                  onClick={() => shareContent(business.business_name, window.location.href)}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                 >
-                  📱 Chia sẻ
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                  </svg>
+                  Chia sẻ
                 </button>
               </div>
             </div>
