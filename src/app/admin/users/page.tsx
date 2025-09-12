@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
 import AdminLayout from '@/components/admin/AdminLayout'
 
 export const dynamic = 'force-dynamic'
@@ -24,23 +23,18 @@ export default function AdminUsers() {
 
   const loadUsers = useCallback(async () => {
     try {
-      let query = supabase
-        .from('users')
-        .select('id, email, full_name, phone, credits, role, created_at')
-        .order('created_at', { ascending: false })
+      const params = new URLSearchParams()
+      if (searchTerm) params.append('search', searchTerm)
+      if (roleFilter !== 'all') params.append('role', roleFilter)
 
-      if (searchTerm) {
-        query = query.or(`email.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`)
+      const response = await fetch(`/api/admin/users?${params.toString()}`)
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to load users')
       }
 
-      if (roleFilter !== 'all') {
-        query = query.eq('role', roleFilter)
-      }
-
-      const { data, error } = await query
-
-      if (error) throw error
-      setUsers(data || [])
+      setUsers(result.data || [])
     } catch (error) {
       console.error('Error loading users:', error)
     } finally {
@@ -53,25 +47,25 @@ export default function AdminUsers() {
   }, [loadUsers])
 
   const handleRoleChange = async (userId: string, newRole: 'user' | 'admin' | 'moderator') => {
+    console.log('handleRoleChange called:', { userId, newRole, type: typeof newRole })
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({ role: newRole })
-        .eq('id', userId)
+      const requestBody = { role: newRole }
+      console.log('Sending request body:', requestBody)
+      
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
 
-      if (error) throw error
+      const result = await response.json()
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        await supabase.from('admin_actions').insert({
-          admin_user_id: user.id,
-          action_type: 'change_user_role',
-          target_type: 'user',
-          target_id: userId,
-          details: { new_role: newRole }
-        })
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update user role')
       }
-
+      
       loadUsers()
     } catch (error) {
       console.error('Error updating user role:', error)
@@ -162,7 +156,23 @@ export default function AdminUsers() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={user.role}
-                        onChange={(e) => handleRoleChange(user.id, e.target.value as 'user' | 'admin' | 'moderator')}
+                        onChange={(e) => {
+                          const selectElement = e.target as HTMLSelectElement
+                          const newRole = selectElement.value as 'user' | 'admin' | 'moderator'
+                          
+                          console.log('Role dropdown changed:', { 
+                            userId: user.id, 
+                            oldRole: user.role, 
+                            newRole,
+                            selectValue: selectElement.value,
+                            selectedIndex: selectElement.selectedIndex,
+                            optionsLength: selectElement.options.length
+                          })
+                          
+                          if (newRole && newRole !== user.role && ['user', 'admin', 'moderator'].includes(newRole)) {
+                            handleRoleChange(user.id, newRole)
+                          }
+                        }}
                         className={`text-xs px-2 py-1 rounded-full font-semibold ${
                           user.role === 'admin' ? 'bg-red-100 text-red-800' :
                           user.role === 'moderator' ? 'bg-blue-100 text-blue-800' :

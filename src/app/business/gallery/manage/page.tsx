@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, deleteImage, generateGalleryPath, getImageUrl } from '@/lib/supabase-storage'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 
 interface GalleryImage {
@@ -17,7 +17,7 @@ interface GalleryImage {
 }
 
 export default function ManageGalleryPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [businessProfile, setBusinessProfile] = useState<{
     id: number
     business_name: string
@@ -75,13 +75,12 @@ export default function ManageGalleryPage() {
   useEffect(() => {
     const checkUserAndLoadProfile = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error || !user) {
+        if (authLoading) return
+        
+        if (!user) {
           router.push('/login')
           return
         }
-
-        setUser(user)
 
         const { data: profiles, error: profileError } = await supabase
           .from('business_profiles')
@@ -105,7 +104,7 @@ export default function ManageGalleryPage() {
     }
 
     checkUserAndLoadProfile()
-  }, [router])
+  }, [router, user, authLoading])
 
   useEffect(() => {
     if (user) {

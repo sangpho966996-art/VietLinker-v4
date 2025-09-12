@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 
 interface AnalyticsData {
@@ -15,6 +15,7 @@ interface AnalyticsData {
 }
 
 export default function BusinessAnalyticsPage() {
+  const { user, loading: authLoading } = useAuth()
   const [businessProfile, setBusinessProfile] = useState<{
     id: number
     business_name: string
@@ -52,22 +53,23 @@ export default function BusinessAnalyticsPage() {
   useEffect(() => {
     const checkUserAndLoadProfile = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error || !user) {
+        if (authLoading) return
+        
+        if (!user) {
           router.push('/login')
           return
         }
 
 
-        const { data: profiles, error: profileError } = await supabase
-          .from('business_profiles')
-          .select('*')
-          .eq('user_id', user.id)
+        const response = await fetch(`/api/business/profiles?user_id=${user.id}`)
+        const result = await response.json()
+        
+        if (!response.ok) {
+          console.error('Error fetching business profiles:', result.error)
+        } else if (result.data && result.data.length > 0) {
+          const profiles = result.data
 
-        if (profileError) {
-          console.error('Error fetching business profiles:', profileError)
-        } else if (profiles && profiles.length > 0) {
-          const profile = profiles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
+          const profile = profiles.sort((a: { created_at: string }, b: { created_at: string }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
           setBusinessProfile(profile)
           loadAnalyticsData()
           return
@@ -84,7 +86,7 @@ export default function BusinessAnalyticsPage() {
     }
 
     checkUserAndLoadProfile()
-  }, [router])
+  }, [user, authLoading, router])
 
   const loadAnalyticsData = () => {
     const mockData: AnalyticsData = {

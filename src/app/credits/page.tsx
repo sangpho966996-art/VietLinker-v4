@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { stripePromise } from '@/lib/stripe'
 import Header from '@/components/Header'
+import { useAuth } from '@/contexts/AuthContext'
 import type { User } from '@supabase/supabase-js'
 
 interface CreditPackage {
@@ -21,7 +21,7 @@ const creditPackages: CreditPackage[] = [
 ]
 
 function CreditsPageContent() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [userProfile, setUserProfile] = useState<{
     id: string
     email: string
@@ -38,22 +38,16 @@ function CreditsPageContent() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error || !user) {
+        if (authLoading) return
+        
+        if (!user) {
           router.push('/login')
           return
         }
 
-        setUser(user)
-
-        const { data: profile, error: profileError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-
-        if (profileError) {
-        } else {
+        const response = await fetch(`/api/user/profile`)
+        if (response.ok) {
+          const profile = await response.json()
           setUserProfile(profile)
         }
       } catch {

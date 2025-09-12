@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import Header from '@/components/Header'
+import { useAuth } from '@/contexts/AuthContext'
 import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -26,7 +27,7 @@ interface BusinessPost {
 }
 
 export default function BusinessPostsPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null)
   const [posts, setPosts] = useState<BusinessPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,14 +36,12 @@ export default function BusinessPostsPage() {
   useEffect(() => {
     const checkUserAndLoadData = async () => {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (authLoading) return
         
-        if (userError || !user) {
+        if (!user) {
           router.push('/login')
           return
         }
-
-        setUser(user)
 
         const { data: profiles, error: profileError } = await supabase
           .from('business_profiles')

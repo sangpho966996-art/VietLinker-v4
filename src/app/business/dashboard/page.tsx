@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import Header from '@/components/Header'
 
@@ -26,35 +26,40 @@ interface BusinessProfile {
 
 export default function BusinessDashboard() {
   const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null)
 
   const checkUserAndLoadProfile = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      if (authLoading) return
+      
       if (!user) {
         router.push('/login')
         return
       }
 
 
-      const { data: profiles, error } = await supabase
-        .from('business_profiles')
-        .select('*')
-        .eq('user_id', user.id)
+      const response = await fetch(`/api/business/profiles?user_id=${user.id}`)
+      const result = await response.json()
+      
+      if (!response.ok) {
+        console.error('Error fetching business profiles:', result.error)
+        return
+      }
+      
+      const profiles = result.data
 
 
-      if (error) {
-        console.error('Error fetching business profiles:', error)
-      } else if (profiles && profiles.length > 0) {
-        const profile = profiles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
+      if (profiles && profiles.length > 0) {
+        const profile = profiles.sort((a: { created_at: string }, b: { created_at: string }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
         setBusinessProfile(profile)
       }
     } catch {
     } finally {
       setLoading(false)
     }
-  }, [router])
+  }, [router, user, authLoading])
 
   useEffect(() => {
     checkUserAndLoadProfile()

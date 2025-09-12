@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import AdminLayout from '@/components/admin/AdminLayout'
 
 export const dynamic = 'force-dynamic'
@@ -28,6 +29,7 @@ interface ContentReport {
 }
 
 export default function AdminReports() {
+  const { user } = useAuth()
   const [reports, setReports] = useState<ContentReport[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'resolved' | 'dismissed'>('pending')
@@ -80,7 +82,6 @@ export default function AdminReports() {
 
       if (error) throw error
 
-      const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         await supabase.from('admin_actions').insert({
           admin_user_id: user.id,
@@ -109,7 +110,6 @@ export default function AdminReports() {
 
       if (error) throw error
 
-      const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         await supabase.from('admin_actions').insert({
           admin_user_id: user.id,

@@ -8,6 +8,7 @@ import { supabase, BusinessHours } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import { copyToClipboard, shareContent, showToast } from '@/lib/contact-utils'
 import Header from '@/components/Header'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,6 +68,7 @@ interface GalleryImage {
 export default function FoodBusinessPage() {
   const params = useParams()
   const businessId = params.id as string
+  const { user: currentUser } = useAuth()
 
   const [business, setBusiness] = useState<BusinessProfile | null>(null)
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
@@ -74,7 +76,6 @@ export default function FoodBusinessPage() {
   const [gallery, setGallery] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
   const [submittingReview, setSubmittingReview] = useState(false)
@@ -82,8 +83,6 @@ export default function FoodBusinessPage() {
 
   const loadBusinessData = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      setCurrentUser(user)
 
       const { data: businessData, error: businessError } = await supabase
         .from('business_profiles')

@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateAvatarPath } from '@/lib/supabase-storage'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [userProfile, setUserProfile] = useState<{
     id: string
     email: string
@@ -38,13 +38,12 @@ export default function ProfilePage() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error || !user) {
+        if (authLoading) return
+        
+        if (!user) {
           router.push('/login')
           return
         }
-
-        setUser(user)
 
         const { data: profile, error: profileError } = await supabase
           .from('users')

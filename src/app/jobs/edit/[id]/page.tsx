@@ -6,12 +6,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const dynamic = 'force-dynamic'
 
 export default function EditJobPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -77,20 +77,19 @@ export default function EditJobPage() {
   }, [postId])
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const checkUser = async () => {
+      if (authLoading) return
       
-      if (userError || !user) {
+      if (!user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
       await loadPost(user.id)
     }
 
-    getUser()
-  }, [router, postId, loadPost])
+    checkUser()
+  }, [user, authLoading, router, postId, loadPost])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -164,7 +163,7 @@ export default function EditJobPage() {
     }
   }
 
-  if (!user) {
+  if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

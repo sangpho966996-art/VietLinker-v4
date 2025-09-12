@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
+import { useAuth } from '@/contexts/AuthContext'
 import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -20,7 +21,7 @@ interface RealEstateTemplate {
 }
 
 export default function CreateRealEstatePage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [userCredits, setUserCredits] = useState<number>(0)
   const [formData, setFormData] = useState({
     title: '',
@@ -244,14 +245,12 @@ export default function CreateRealEstatePage() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (authLoading) return
       
-      if (userError || !user) {
+      if (!user) {
         router.push('/login')
         return
       }
-
-      setUser(user)
 
       const { data: userData } = await supabase
         .from('users')
@@ -265,7 +264,7 @@ export default function CreateRealEstatePage() {
     }
 
     getUser()
-  }, [router])
+  }, [user, authLoading, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -376,7 +375,7 @@ export default function CreateRealEstatePage() {
     }
   }
 
-  if (!user) {
+  if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

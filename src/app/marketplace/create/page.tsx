@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const dynamic = 'force-dynamic'
 
 export default function CreateMarketplacePage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [userCredits, setUserCredits] = useState<number>(0)
   const [formData, setFormData] = useState({
     title: '',
@@ -38,14 +38,12 @@ export default function CreateMarketplacePage() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (authLoading) return
       
-      if (userError || !user) {
+      if (!user) {
         router.push('/login')
         return
       }
-
-      setUser(user)
 
       const { data: userData } = await supabase
         .from('users')
@@ -59,7 +57,7 @@ export default function CreateMarketplacePage() {
     }
 
     getUser()
-  }, [router])
+  }, [user, authLoading, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target

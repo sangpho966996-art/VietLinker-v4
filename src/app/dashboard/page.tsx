@@ -3,15 +3,14 @@
 import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
-import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [businessProfile, setBusinessProfile] = useState<{
     id: number
     business_name: string
@@ -25,28 +24,22 @@ export default function DashboardPage() {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (authLoading) return
         
-        if (userError) {
-          throw new Error(`Failed to get user: ${userError.message}`)
-        }
-
         if (!user) {
           router.push('/login')
           return
         }
 
-        setUser(user)
+        const response = await fetch(`/api/business-profiles?user_id=${user.id}`)
+        const result = await response.json()
+        
+        if (!response.ok) {
+          console.error('Error fetching business profiles:', result.error)
+        } else if (result.data && result.data.length > 0) {
+          const profiles = result.data
 
-        const { data: profiles, error: profileError } = await supabase
-          .from('business_profiles')
-          .select('*')
-          .eq('user_id', user.id)
-
-        if (profileError) {
-          console.error('Error fetching business profiles:', profileError)
-        } else if (profiles && profiles.length > 0) {
-          const profile = profiles.sort((a, b) => 
+          const profile = profiles.sort((a: { created_at: string }, b: { created_at: string }) => 
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           )[0]
           setBusinessProfile(profile)
@@ -60,7 +53,7 @@ export default function DashboardPage() {
     }
 
     getUser()
-  }, [router])
+  }, [user, authLoading, router])
 
   if (loading) {
     return (

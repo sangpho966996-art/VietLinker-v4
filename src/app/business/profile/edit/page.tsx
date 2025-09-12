@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, deleteImage, generateGalleryPath } from '@/lib/supabase-storage'
 import Header from '@/components/Header'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface BusinessHours {
   [key: string]: {
@@ -37,7 +37,7 @@ const dayNames = {
 }
 
 export default function EditBusinessProfilePage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [businessProfile, setBusinessProfile] = useState<{
     id: number
     user_id: string
@@ -82,13 +82,12 @@ export default function EditBusinessProfilePage() {
   useEffect(() => {
     const checkUserAndLoadProfile = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error || !user) {
+        if (authLoading) return
+        
+        if (!user) {
           router.push('/login')
           return
         }
-
-        setUser(user)
 
         const { data: profiles, error: profileError } = await supabase
           .from('business_profiles')
@@ -127,7 +126,7 @@ export default function EditBusinessProfilePage() {
     }
 
     checkUserAndLoadProfile()
-  }, [router])
+  }, [router, user, authLoading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

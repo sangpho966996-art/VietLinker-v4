@@ -1,55 +1,18 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default React.memo(function Header() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, signOut } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const router = useRouter()
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error) {
-          return
-        }
-        setUser(user)
-      } catch {
-      }
-    }
-
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        try {
-          setUser(session?.user ?? null)
-          if (event === 'SIGNED_OUT') {
-            router.refresh()
-          }
-        } catch {
-        }
-      }
-    )
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [router])
 
   const handleSignOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        return
-      }
-      router.push('/')
-    } catch {
+      await signOut()
+    } catch (error) {
+      console.error('Error signing out:', error)
     }
   }
 

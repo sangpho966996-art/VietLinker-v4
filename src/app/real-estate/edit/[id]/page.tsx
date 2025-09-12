@@ -4,14 +4,13 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { supabase } from '@/lib/supabase'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const dynamic = 'force-dynamic'
 
 export default function EditRealEstatePage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -41,14 +40,12 @@ export default function EditRealEstatePage() {
 
   const loadPost = useCallback(async (userId: string) => {
     try {
-      const { data: post, error } = await supabase
-        .from('real_estate_posts')
-        .select('*')
-        .eq('id', postId)
-        .eq('user_id', userId)
-        .single()
+      const response = await fetch(`/api/real-estate-posts/${postId}?user_id=${userId}`)
+      const result = await response.json()
 
-      if (error) throw error
+      if (!response.ok) throw new Error(result.error || 'Failed to load post')
+      
+      const post = result.data
 
       if (post) {
         setFormData({
@@ -73,19 +70,18 @@ export default function EditRealEstatePage() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (authLoading) return
       
-      if (userError || !user) {
+      if (!user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
       await loadPost(user.id)
     }
 
     getUser()
-  }, [router, postId, loadPost])
+  }, [router, postId, loadPost, user, authLoading])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -132,9 +128,12 @@ export default function EditRealEstatePage() {
         }
       }
 
-      const { error: updateError } = await supabase
-        .from('real_estate_posts')
-        .update({
+      const response = await fetch(`/api/real-estate-posts/${postId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           title: formData.title,
           description: formData.description,
           price: formData.price ? parseFloat(formData.price) : null,
@@ -148,11 +147,11 @@ export default function EditRealEstatePage() {
           zip_code: formData.zip_code,
           images: imageUrls,
           updated_at: new Date().toISOString()
-        })
-        .eq('id', postId)
-        .eq('user_id', user.id)
+        }),
+      })
 
-      if (updateError) throw updateError
+      const updateResult = await response.json()
+      if (!response.ok) throw new Error(updateResult.error || 'Failed to update post')
 
       router.push('/my-posts')
     } catch (err) {
@@ -162,7 +161,7 @@ export default function EditRealEstatePage() {
     }
   }
 
-  if (!user) {
+  if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

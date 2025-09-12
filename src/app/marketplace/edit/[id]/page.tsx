@@ -6,12 +6,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const dynamic = 'force-dynamic'
 
 export default function EditMarketplacePage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -77,19 +77,18 @@ export default function EditMarketplacePage() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (authLoading) return
       
-      if (userError || !user) {
+      if (!user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
       await loadPost(user.id)
     }
 
     getUser()
-  }, [router, postId, loadPost])
+  }, [router, postId, loadPost, user, authLoading])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -161,7 +160,7 @@ export default function EditMarketplacePage() {
     }
   }
 
-  if (!user) {
+  if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

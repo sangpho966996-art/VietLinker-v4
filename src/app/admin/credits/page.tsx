@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import AdminLayout from '@/components/admin/AdminLayout'
 
 export const dynamic = 'force-dynamic'
@@ -31,6 +32,7 @@ interface CreditTransaction {
 }
 
 function AdminCreditsContent() {
+  const { user: authUser } = useAuth()
   const searchParams = useSearchParams()
   const selectedUserId = searchParams.get('user')
   
@@ -117,10 +119,9 @@ function AdminCreditsContent() {
 
       if (transactionError) throw transactionError
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+      if (authUser) {
         await supabase.from('admin_actions').insert({
-          admin_user_id: user.id,
+          admin_user_id: authUser.id,
           action_type: 'adjust_credits',
           target_type: 'user',
           target_id: selectedUser.id,

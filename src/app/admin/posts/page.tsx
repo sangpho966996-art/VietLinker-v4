@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import AdminLayout from '@/components/admin/AdminLayout'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,6 +28,7 @@ interface PendingPost {
 }
 
 export default function AdminPosts() {
+  const { user } = useAuth()
   const [posts, setPosts] = useState<PendingPost[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
@@ -102,7 +104,6 @@ export default function AdminPosts() {
 
       if (error) throw error
 
-      const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         await supabase.from('admin_actions').insert({
           admin_user_id: user.id,
@@ -128,7 +129,6 @@ export default function AdminPosts() {
 
       if (error) throw error
 
-      const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         await supabase.from('admin_actions').insert({
           admin_user_id: user.id,

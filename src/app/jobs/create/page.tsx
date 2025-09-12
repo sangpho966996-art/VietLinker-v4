@@ -3,14 +3,13 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
-import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
 export default function CreateJobPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [userCredits, setUserCredits] = useState<number>(0)
   const [formData, setFormData] = useState({
     title: '',
@@ -387,29 +386,33 @@ export default function CreateJobPage() {
   }
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const getUserCredits = async () => {
+      if (authLoading) return
       
-      if (userError || !user) {
+      if (!user) {
         router.push('/login')
         return
       }
 
-      setUser(user)
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('credits')
-        .eq('id', user.id)
-        .single()
-
-      if (userData) {
-        setUserCredits(userData.credits || 0)
+      try {
+        const response = await fetch(`/api/auth/user`)
+        const result = await response.json()
+        
+        if (result.user) {
+          const creditsResponse = await fetch(`/api/user/credits`)
+          const creditsResult = await creditsResponse.json()
+          
+          if (creditsResult.credits !== undefined) {
+            setUserCredits(creditsResult.credits || 0)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user credits:', error)
       }
     }
 
-    getUser()
-  }, [router])
+    getUserCredits()
+  }, [user, authLoading, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -487,9 +490,12 @@ export default function CreateJobPage() {
         }
       }
 
-      const { error: insertError } = await supabase
-        .from('job_posts')
-        .insert({
+      const response = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           user_id: user.id,
           title: formData.title,
           description: formData.description,
@@ -502,17 +508,30 @@ export default function CreateJobPage() {
           images: imageUrls,
           admin_status: 'pending',
           expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        })
-
-      if (insertError) throw insertError
-
-      const { data: creditResult } = await supabase.rpc('deduct_credits_for_post', {
-        user_uuid: user.id,
-        post_type: 'job',
-        days: 30
+        }),
       })
 
-      if (!creditResult) {
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create job post')
+      }
+
+      const creditsResponse = await fetch('/api/user/deduct-credits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_uuid: user.id,
+          post_type: 'job',
+          days: 30
+        }),
+      })
+
+      const creditsResult = await creditsResponse.json()
+
+      if (!creditsResponse.ok) {
         setError('Không thể trừ credits')
         return
       }

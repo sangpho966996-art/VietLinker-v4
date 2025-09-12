@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import Header from '@/components/Header'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,7 +16,7 @@ interface BusinessProfile {
 }
 
 export default function CreateBusinessPostPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null)
   const [formData, setFormData] = useState({
     title: '',
@@ -38,14 +38,12 @@ export default function CreateBusinessPostPage() {
   useEffect(() => {
     const checkUserAndLoadProfile = async () => {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (authLoading) return
         
-        if (userError || !user) {
+        if (!user) {
           router.push('/login')
           return
         }
-
-        setUser(user)
 
         const { data: profiles, error: profileError } = await supabase
           .from('business_profiles')
@@ -67,7 +65,7 @@ export default function CreateBusinessPostPage() {
     }
 
     checkUserAndLoadProfile()
-  }, [router])
+  }, [router, user, authLoading])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target

@@ -4,8 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,7 +51,7 @@ interface RealEstatePost {
 }
 
 export default function MyPostsPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [marketplacePosts, setMarketplacePosts] = useState<MarketplacePost[]>([])
   const [jobPosts, setJobPosts] = useState<JobPost[]>([])
   const [realEstatePosts, setRealEstatePosts] = useState<RealEstatePost[]>([])
@@ -62,37 +61,28 @@ export default function MyPostsPage() {
 
   const loadPosts = useCallback(async (userId: string) => {
     try {
-      const { data: marketplaceData, error: marketplaceError } = await supabase
-        .from('marketplace_posts')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
+      const [marketplaceResponse, jobResponse, realEstateResponse] = await Promise.all([
+        fetch(`/api/marketplace-posts?user_id=${userId}`),
+        fetch(`/api/job-posts?user_id=${userId}`),
+        fetch(`/api/real-estate-posts?user_id=${userId}`)
+      ])
 
-      if (marketplaceError) {
-      } else {
-        setMarketplacePosts(marketplaceData || [])
+      const [marketplaceResult, jobResult, realEstateResult] = await Promise.all([
+        marketplaceResponse.json(),
+        jobResponse.json(),
+        realEstateResponse.json()
+      ])
+
+      if (marketplaceResponse.ok) {
+        setMarketplacePosts(marketplaceResult.data || [])
       }
 
-      const { data: jobData, error: jobError } = await supabase
-        .from('job_posts')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-
-      if (jobError) {
-      } else {
-        setJobPosts(jobData || [])
+      if (jobResponse.ok) {
+        setJobPosts(jobResult.data || [])
       }
 
-      const { data: realEstateData, error: realEstateError } = await supabase
-        .from('real_estate_posts')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-
-      if (realEstateError) {
-      } else {
-        setRealEstatePosts(realEstateData || [])
+      if (realEstateResponse.ok) {
+        setRealEstatePosts(realEstateResult.data || [])
       }
     } catch {
     }
@@ -101,19 +91,13 @@ export default function MyPostsPage() {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (authLoading) return
         
-        if (userError) {
-          router.push('/login')
-          return
-        }
-
         if (!user) {
           router.push('/login')
           return
         }
 
-        setUser(user)
         await loadPosts(user.id)
       } catch {
         router.push('/login')
@@ -123,7 +107,7 @@ export default function MyPostsPage() {
     }
 
     getUser()
-  }, [router, loadPosts])
+  }, [router, loadPosts, user, authLoading])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -146,15 +130,17 @@ export default function MyPostsPage() {
     }
 
     try {
-      const tableName = type === 'marketplace' ? 'marketplace_posts' : 
-                       type === 'jobs' ? 'job_posts' : 'real_estate_posts'
+      const apiEndpoint = type === 'marketplace' ? 'marketplace-posts' : 
+                         type === 'jobs' ? 'job-posts' : 'real-estate-posts'
       
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .eq('id', id)
+      const response = await fetch(`/api/${apiEndpoint}/${id}`, {
+        method: 'DELETE',
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || 'Failed to delete post')
+      }
 
       if (user) {
         await loadPosts(user.id)

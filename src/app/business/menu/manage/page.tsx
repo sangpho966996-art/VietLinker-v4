@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, deleteImage, generateGalleryPath } from '@/lib/supabase-storage'
 import Header from '@/components/Header'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface MenuItem {
   id: number
@@ -21,6 +22,7 @@ interface MenuItem {
 }
 
 export default function ManageMenuPage() {
+  const { user, loading: authLoading } = useAuth()
   const [businessProfile, setBusinessProfile] = useState<{
     id: number
     user_id: string
@@ -71,8 +73,9 @@ export default function ManageMenuPage() {
   useEffect(() => {
     const checkUserAndLoadProfile = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error || !user) {
+        if (authLoading) return
+        
+        if (!user) {
           router.push('/login')
           return
         }

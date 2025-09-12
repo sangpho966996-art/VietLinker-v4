@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 
 export default function BusinessRegisterPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
@@ -27,7 +29,6 @@ export default function BusinessRegisterPage() {
     setError('')
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         router.push('/login')
         return
