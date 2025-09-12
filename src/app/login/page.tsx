@@ -14,6 +14,14 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
+  const getReturnUrl = () => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      return urlParams.get('returnUrl') || '/dashboard'
+    }
+    return '/dashboard'
+  }
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -37,7 +45,8 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        router.push('/dashboard')
+        const returnUrl = getReturnUrl()
+        router.push(returnUrl)
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Đã xảy ra lỗi không xác định'
