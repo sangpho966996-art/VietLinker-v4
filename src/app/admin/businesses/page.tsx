@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
 import AdminLayout from '@/components/admin/AdminLayout'
 
 export const dynamic = 'force-dynamic'
@@ -40,7 +39,7 @@ export default function AdminBusinesses() {
       }
 
       if (result.data) {
-        const businessesWithUser = result.data.map((business: any) => {
+        const businessesWithUser = result.data.map((business: BusinessProfile & { users: { email: string; full_name: string } | null }) => {
           const user = Array.isArray(business.users) ? business.users[0] : business.users;
           return {
             ...business,

@@ -45,7 +45,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const updateData: any = { admin_status }
+    const updateData: Record<string, unknown> = { admin_status }
     if (admin_status === 'approved') {
       updateData.status = 'active'
     }
