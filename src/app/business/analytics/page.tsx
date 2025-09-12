@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import Header from '@/components/Header'
 
 interface AnalyticsData {
   totalViews: number
@@ -124,8 +125,13 @@ export default function BusinessAnalyticsPage() {
   const maxViews = Math.max(...analyticsData.weeklyViews)
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50">
+      <Suspense fallback={<div className="h-16 bg-white border-b"></div>}>
+        <Header />
+      </Suspense>
+      
+      <div className="py-8">
+        <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-900">
@@ -283,6 +289,7 @@ export default function BusinessAnalyticsPage() {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import Header from '@/components/Header'
 import type { User } from '@supabase/supabase-js'
 
 interface BusinessHours {
@@ -172,28 +173,33 @@ export default function EditBusinessProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">
-              Chỉnh sửa hồ sơ doanh nghiệp
-            </h1>
+    <div className="min-h-screen bg-gray-50">
+      <Suspense fallback={<div className="h-16 bg-white border-b"></div>}>
+        <Header />
+      </Suspense>
+      
+      <div className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                Chỉnh sửa hồ sơ doanh nghiệp
+              </h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="business_name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Tên doanh nghiệp *
-                  </label>
-                  <input
-                    type="text"
-                    id="business_name"
-                    required
-                    value={formData.business_name}
-                    onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="business_name" className="block text-sm font-medium text-gray-700 mb-2">
+                      Tên doanh nghiệp *
+                    </label>
+                    <input
+                      type="text"
+                      id="business_name"
+                      required
+                      value={formData.business_name}
+                      onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
                 </div>
 
                 <div>
@@ -364,6 +370,7 @@ export default function EditBusinessProfilePage() {
             </form>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

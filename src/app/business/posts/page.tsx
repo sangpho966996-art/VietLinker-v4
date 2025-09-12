@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import Header from '@/components/Header'
 import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -120,28 +121,33 @@ export default function BusinessPostsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Bài đăng - {businessProfile.business_name}
-            </h1>
-            <div className="flex space-x-4">
-              <Link
-                href="/business/posts/create"
-                className="btn btn-primary"
-              >
-                Tạo bài đăng mới
-              </Link>
-              <Link
-                href="/business/dashboard"
-                className="btn btn-secondary"
-              >
-                Quay lại Dashboard
-              </Link>
+    <div className="min-h-screen bg-gray-50">
+      <Suspense fallback={<div className="h-16 bg-white border-b"></div>}>
+        <Header />
+      </Suspense>
+      
+      <div className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold text-gray-900">
+                Bài đăng - {businessProfile.business_name}
+              </h1>
+              <div className="flex space-x-4">
+                <Link
+                  href="/business/posts/create"
+                  className="btn btn-primary"
+                >
+                  Tạo bài đăng mới
+                </Link>
+                <Link
+                  href="/business/dashboard"
+                  className="btn btn-secondary"
+                >
+                  Quay lại Dashboard
+                </Link>
+              </div>
             </div>
-          </div>
 
           {posts.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -203,6 +209,7 @@ export default function BusinessPostsPage() {
               ))}
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

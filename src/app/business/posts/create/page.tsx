@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import Header from '@/components/Header'
 import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -125,6 +126,10 @@ export default function CreateBusinessPostPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Suspense fallback={<div className="h-16 bg-white border-b"></div>}>
+        <Header />
+      </Suspense>
+      
       <div className="bg-white shadow">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
