@@ -9,12 +9,6 @@ import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
-interface UserProfile {
-  id: string
-  email: string
-  full_name: string | null
-  avatar_url: string | null
-}
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
