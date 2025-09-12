@@ -37,14 +37,16 @@ export default function BusinessDashboard() {
       }
 
 
-      const { data: profile, error } = await supabase
+      const { data: profiles, error } = await supabase
         .from('business_profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single()
 
-      if (error && error.code !== 'PGRST116') {
-      } else if (profile) {
+
+      if (error) {
+        console.error('Error fetching business profiles:', error)
+      } else if (profiles && profiles.length > 0) {
+        const profile = profiles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
         setBusinessProfile(profile)
       }
     } catch {
