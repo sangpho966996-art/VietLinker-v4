@@ -69,24 +69,27 @@ export default function ManageMenuPage() {
         }
 
 
-        const { data: profile, error: profileError } = await supabase
+        const { data: profiles, error: profileError } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
-          .single()
 
         if (profileError) {
-          router.push('/business/register')
+          console.error('Error fetching business profiles:', profileError)
+        } else if (profiles && profiles.length > 0) {
+          const profile = profiles.sort((a: { created_at: string }, b: { created_at: string }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
+          
+          if (profile.business_type !== 'food') {
+            router.push('/business/dashboard')
+            return
+          }
+
+          setBusinessProfile(profile)
+          loadMenuItems()
           return
         }
-
-        if (profile.business_type !== 'food') {
-          router.push('/business/dashboard')
-          return
-        }
-
-        setBusinessProfile(profile)
-        loadMenuItems()
+        
+        router.push('/business/register')
       } catch {
         router.push('/login')
       } finally {

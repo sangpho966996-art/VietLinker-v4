@@ -84,32 +84,35 @@ export default function EditBusinessProfilePage() {
 
         setUser(user)
 
-        const { data: profile, error: profileError } = await supabase
+        const { data: profiles, error: profileError } = await supabase
           .from('business_profiles')
           .select('*')
           .eq('user_id', user.id)
-          .single()
 
         if (profileError) {
-          router.push('/business/register')
+          console.error('Error fetching business profiles:', profileError)
+        } else if (profiles && profiles.length > 0) {
+          const profile = profiles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
+          setBusinessProfile(profile)
+          setFormData({
+            business_name: profile.business_name || '',
+            description: profile.description || '',
+            phone: profile.phone || '',
+            website: profile.website || '',
+            address: profile.address || '',
+            city: profile.city || '',
+            state: profile.state || '',
+            zip_code: profile.zip_code || '',
+          })
+
+          if (profile.hours) {
+            setHours({ ...defaultHours, ...profile.hours })
+          }
           return
         }
-
-        setBusinessProfile(profile)
-        setFormData({
-          business_name: profile.business_name || '',
-          description: profile.description || '',
-          phone: profile.phone || '',
-          website: profile.website || '',
-          address: profile.address || '',
-          city: profile.city || '',
-          state: profile.state || '',
-          zip_code: profile.zip_code || '',
-        })
-
-        if (profile.hours) {
-          setHours({ ...defaultHours, ...profile.hours })
-        }
+        
+        router.push('/business/register')
+        return
       } catch {
         router.push('/login')
       } finally {
