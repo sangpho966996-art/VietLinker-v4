@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import Header from '@/components/Header'
 
 interface BusinessProfile {
   id: number
@@ -102,7 +103,11 @@ export default function BusinessDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      <Suspense fallback={<div className="h-16 bg-white border-b"></div>}>
+        <Header />
+      </Suspense>
+      
+      {/* Business Header */}
       <div className="bg-white shadow">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
