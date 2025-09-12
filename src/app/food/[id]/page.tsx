@@ -5,8 +5,11 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase, BusinessHours } from '@/lib/supabase'
+import type { User } from '@supabase/supabase-js'
 import { copyToClipboard, shareContent, showToast } from '@/lib/contact-utils'
 import Header from '@/components/Header'
+
+export const dynamic = 'force-dynamic'
 
 interface BusinessProfile {
   id: number
@@ -71,9 +74,17 @@ export default function FoodBusinessPage() {
   const [gallery, setGallery] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
+  const [submittingReview, setSubmittingReview] = useState(false)
+  const [showFullMenu, setShowFullMenu] = useState(false)
 
   const loadBusinessData = useCallback(async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      setCurrentUser(user)
+
       const { data: businessData, error: businessError } = await supabase
         .from('business_profiles')
         .select('*')
@@ -180,6 +191,36 @@ export default function FoodBusinessPage() {
       window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank')
     } else {
       showToast('Không có thông tin địa chỉ')
+    }
+  }
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentUser) {
+      window.location.href = '/login?returnUrl=' + encodeURIComponent(window.location.pathname)
+      return
+    }
+
+    setSubmittingReview(true)
+    try {
+      const { error } = await supabase
+        .from('business_reviews')
+        .insert({
+          business_profile_id: parseInt(businessId),
+          user_id: currentUser.id,
+          rating: reviewForm.rating,
+          comment: reviewForm.comment
+        })
+
+      if (error) throw error
+
+      await loadBusinessData()
+      setShowReviewModal(false)
+      setReviewForm({ rating: 5, comment: '' })
+    } catch (error) {
+      console.error('Error submitting review:', error)
+    } finally {
+      setSubmittingReview(false)
     }
   }
 
@@ -294,18 +335,25 @@ export default function FoodBusinessPage() {
 
               {/* Action Buttons - Yelp Style */}
               <div className="flex flex-wrap gap-3">
-                <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
+                <button 
+                  onClick={() => setShowReviewModal(true)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center"
+                >
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                   Viết đánh giá
                 </button>
-                <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-white/30 flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                  </svg>
-                  Thêm ảnh
-                </button>
+                
+                {currentUser && business && currentUser.id === business.user_id && (
+                  <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-white/30 flex items-center">
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                    </svg>
+                    Thêm ảnh
+                  </button>
+                )}
+                
                 <button 
                   onClick={() => shareContent(business.business_name, window.location.href)}
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-white/30 flex items-center"
@@ -338,16 +386,23 @@ export default function FoodBusinessPage() {
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-gray-900">Menu</h2>
-                    <button className="text-red-600 hover:text-red-700 font-medium">
-                      Xem menu đầy đủ →
-                    </button>
+                    {menuItems.length > 6 && (
+                      <button 
+                        onClick={() => setShowFullMenu(!showFullMenu)}
+                        className="text-red-600 hover:text-red-700 font-medium"
+                      >
+                        {showFullMenu ? 'Thu gọn ←' : 'Xem menu đầy đủ →'}
+                      </button>
+                    )}
                   </div>
                 </div>
                 
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Món phổ biến</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    {showFullMenu ? 'Menu đầy đủ' : 'Món phổ biến'}
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {menuItems.slice(0, 6).map((item) => (
+                    {(showFullMenu ? menuItems : menuItems.slice(0, 6)).map((item) => (
                       <div
                         key={item.id}
                         className={`flex space-x-4 p-4 rounded-lg border hover:shadow-md transition-shadow ${
@@ -396,9 +451,12 @@ export default function FoodBusinessPage() {
                     ))}
                   </div>
                   
-                  {menuItems.length > 6 && (
+                  {!showFullMenu && menuItems.length > 6 && (
                     <div className="mt-6 text-center">
-                      <button className="text-red-600 hover:text-red-700 font-medium">
+                      <button 
+                        onClick={() => setShowFullMenu(true)}
+                        className="text-red-600 hover:text-red-700 font-medium"
+                      >
                         Xem thêm {menuItems.length - 6} món khác
                       </button>
                     </div>
@@ -474,7 +532,10 @@ export default function FoodBusinessPage() {
                 <h2 className="text-2xl font-bold text-gray-900">
                   Đánh giá và nhận xét
                 </h2>
-                <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <button 
+                  onClick={() => setShowReviewModal(true)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
                   Viết đánh giá
                 </button>
               </div>
@@ -678,6 +739,73 @@ export default function FoodBusinessPage() {
             </div>
           </div>
         </div>
+
+        {/* Review Modal */}
+        {showReviewModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Đánh giá {business?.business_name}</h3>
+                <button 
+                  onClick={() => setShowReviewModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <form onSubmit={handleSubmitReview} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Đánh giá</label>
+                  <div className="flex space-x-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                        className={`w-8 h-8 ${star <= reviewForm.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                      >
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nhận xét</label>
+                  <textarea
+                    value={reviewForm.comment}
+                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder="Chia sẻ trải nghiệm của bạn..."
+                  />
+                </div>
+                
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowReviewModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {submittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
