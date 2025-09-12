@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { Suspense, useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase, BusinessHours } from '@/lib/supabase'
 import { copyToClipboard, shareContent, showToast } from '@/lib/contact-utils'
+import Header from '@/components/Header'
 
 interface BusinessProfile {
   id: number
@@ -226,8 +227,12 @@ export default function FoodBusinessPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="relative h-64 md:h-80">
+      <Suspense fallback={<div className="h-16 bg-white border-b"></div>}>
+        <Header />
+      </Suspense>
+      
+      {/* Enhanced Hero Section */}
+      <div className="relative h-96 bg-gradient-to-r from-red-600 to-red-700 overflow-hidden">
         {business.cover_image ? (
           <Image
             src={business.cover_image}
@@ -238,34 +243,54 @@ export default function FoodBusinessPage() {
             unoptimized
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-red-500 to-red-600"></div>
+          <div className="w-full h-full bg-gradient-to-r from-red-600 to-red-700">
+            <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center text-white">
+                <div className="w-24 h-24 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
+                  <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H9a1 1 0 110-2H8.771l.062-.245.123-.489.804-.804A1 1 0 0110.5 8l.5.5a1 1 0 11-1.414 1.414l-.123.123-.489.804-.245.062z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-semibold">Nhà hàng Việt Nam</h2>
+              </div>
+            </div>
+          </div>
         )}
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
         
         {/* Business Info Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex items-end space-x-4">
-              {business.logo && (
-                <Image
-                  src={business.logo}
-                  alt={`${business.business_name} logo`}
-                  className="w-20 h-20 rounded-full border-4 border-white object-cover"
-                  width={80}
-                  height={80}
-                  unoptimized
-                />
-              )}
-              <div>
-                <h1 className="text-3xl font-bold mb-2">{business.business_name}</h1>
-                <div className="flex items-center space-x-4 text-sm">
-                  {averageRating > 0 && (
-                    <div className="flex items-center">
-                      <span className="text-yellow-400 mr-1">★</span>
-                      <span>{averageRating.toFixed(1)} ({reviews.length} đánh giá)</span>
+        <div className="absolute bottom-0 left-0 right-0 p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div className="flex items-center space-x-6">
+                <div className="flex-shrink-0">
+                  <div className="w-20 h-20 bg-white rounded-full p-1">
+                    <div className="w-full h-full bg-red-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-xl">
+                        {business?.business_name?.charAt(0) || 'R'}
+                      </span>
                     </div>
-                  )}
-                  <span>Nhà hàng Việt Nam</span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h1 className="text-4xl font-bold text-white mb-3">
+                    {business.business_name}
+                  </h1>
+                  <div className="flex flex-wrap items-center text-white/90 space-x-6 text-lg">
+                    <span className="flex items-center">
+                      <span className="mr-2">📍</span>
+                      {business?.address || 'Địa chỉ đang cập nhật'}
+                    </span>
+                    <span className="flex items-center">
+                      <span className="mr-2">📞</span>
+                      {business?.phone || 'Số điện thoại đang cập nhật'}
+                    </span>
+                    <span className="flex items-center">
+                      <span className="mr-2">🕒</span>
+                      Đang mở cửa
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

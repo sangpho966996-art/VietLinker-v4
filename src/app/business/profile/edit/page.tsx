@@ -418,50 +418,6 @@ export default function EditBusinessProfilePage() {
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Ảnh bìa doanh nghiệp</h3>
-                <div className="space-y-4">
-                  {businessProfile?.cover_image && (
-                    <div className="mb-4">
-                      <Image 
-                        src={businessProfile.cover_image} 
-                        alt="Cover" 
-                        width={800}
-                        height={300}
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                      <p className="text-sm text-gray-500 mt-2">Ảnh bìa hiện tại</p>
-                    </div>
-                  )}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Chọn ảnh bìa mới
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleCoverImageSelect}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    />
-                    <p className="mt-1 text-sm text-gray-500">
-                      Chấp nhận: JPG, PNG, GIF. Tối đa 10MB. Kích thước khuyến nghị: 1200x400px
-                    </p>
-                    {selectedCoverImage && (
-                      <div className="mt-2">
-                        <Image
-                          src={URL.createObjectURL(selectedCoverImage)}
-                          alt="Preview"
-                          width={800}
-                          height={300}
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                        <p className="text-sm text-gray-500 mt-2">Xem trước ảnh bìa mới</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
