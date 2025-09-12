@@ -5,6 +5,9 @@ import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { supabase, BusinessHours } from '@/lib/supabase'
 import { copyToClipboard, shareContent, showToast } from '@/lib/contact-utils'
+import Header from '@/components/Header'
+
+export const dynamic = 'force-dynamic'
 
 interface BusinessProfile {
   id: number
@@ -201,13 +204,14 @@ export default function ServiceProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+      <Header />
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">{business.business_name}</h1>
-              <p className="text-blue-100 mt-2">Dịch vụ chuyên nghiệp</p>
+              <p className="text-red-100 mt-2">Dịch vụ chuyên nghiệp</p>
             </div>
           </div>
         </div>
@@ -325,7 +329,7 @@ export default function ServiceProfilePage() {
                         <div className="flex items-center">
                           <span className="text-gray-400 mr-3">🌐</span>
                           <a href={business.website} target="_blank" rel="noopener noreferrer" 
-                             className="text-blue-600 hover:text-blue-800">
+                             className="text-red-600 hover:text-red-700">
                             {business.website}
                           </a>
                         </div>
@@ -472,7 +476,7 @@ export default function ServiceProfilePage() {
                     <div>
                       <span className="font-medium">Website:</span>
                       <a href={business.website} target="_blank" rel="noopener noreferrer" 
-                         className="text-blue-600 hover:text-blue-800 block">
+                         className="text-red-600 hover:text-red-700 block">
                         {business.website}
                       </a>
                     </div>
