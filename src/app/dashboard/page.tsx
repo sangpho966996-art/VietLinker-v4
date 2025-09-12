@@ -18,7 +18,6 @@ interface UserProfile {
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -39,17 +38,6 @@ export default function DashboardPage() {
 
         setUser(user)
 
-        const { data: profileData, error: profileError } = await supabase
-          .from('users')
-          .select('id, email, full_name, avatar_url')
-          .eq('id', user.id)
-          .single()
-
-        if (profileError && profileError.code !== 'PGRST116') {
-          setError(`Profile fetch error: ${profileError.message}`)
-        } else if (profileData) {
-          setProfile(profileData)
-        }
       } catch {
         setError('Không thể tải thông tin người dùng')
       } finally {
@@ -87,8 +75,6 @@ export default function DashboardPage() {
   if (!user) {
     return null
   }
-
-  const displayName = profile?.full_name || user.email?.split('@')[0] || 'Người dùng'
 
   return (
     <div className="min-h-screen bg-gray-50">
