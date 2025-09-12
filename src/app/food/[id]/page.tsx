@@ -235,6 +235,7 @@ export default function FoodBusinessPage() {
             className="w-full h-full object-cover"
             fill
             sizes="100vw"
+            unoptimized
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-red-500 to-red-600"></div>
@@ -252,6 +253,7 @@ export default function FoodBusinessPage() {
                   className="w-20 h-20 rounded-full border-4 border-white object-cover"
                   width={80}
                   height={80}
+                  unoptimized
                 />
               )}
               <div>
@@ -334,6 +336,7 @@ export default function FoodBusinessPage() {
                                   width={80}
                                   height={80}
                                   className="w-20 h-20 object-cover rounded-lg"
+                                  unoptimized
                                 />
                               </div>
                             )}
@@ -473,6 +476,7 @@ export default function FoodBusinessPage() {
                           className="w-full h-full object-cover rounded-lg"
                           fill
                           sizes="(max-width: 768px) 50vw, 33vw"
+                          unoptimized
                         />
                       </div>
                     ))}
@@ -507,6 +511,7 @@ export default function FoodBusinessPage() {
                                 className="w-10 h-10 rounded-full object-cover"
                                 width={40}
                                 height={40}
+                                unoptimized
                               />
                             ) : (
                               <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
