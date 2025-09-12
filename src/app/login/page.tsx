@@ -18,10 +18,10 @@ async function signIn(formData: FormData) {
         get(name: string) {
           return cookieStore.get(name)?.value
         },
-        set(name: string, value: string, options: any) {
+        set(name: string, value: string, options: Record<string, unknown>) {
           cookieStore.set(name, value, options)
         },
-        remove(name: string, options: any) {
+        remove(name: string, options: Record<string, unknown>) {
           cookieStore.set(name, '', { ...options, maxAge: 0 })
         },
       },
@@ -43,8 +43,9 @@ async function signIn(formData: FormData) {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { returnUrl?: string; error?: string }
+  searchParams: Promise<{ returnUrl?: string; error?: string }>
 }) {
+  const params = await searchParams
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -61,7 +62,7 @@ export default async function LoginPage({
   const { data: { session } } = await supabase.auth.getSession()
 
   if (session) {
-    redirect(searchParams.returnUrl || '/dashboard')
+    redirect(params.returnUrl || '/dashboard')
   }
 
   return (
@@ -88,9 +89,9 @@ export default async function LoginPage({
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {searchParams.error && (
+          {params.error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {searchParams.error}
+              {params.error}
             </div>
           )}
           
@@ -98,7 +99,7 @@ export default async function LoginPage({
             <input
               type="hidden"
               name="returnUrl"
-              value={searchParams.returnUrl || '/dashboard'}
+              value={params.returnUrl || '/dashboard'}
             />
             
             <div>
