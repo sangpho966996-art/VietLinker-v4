@@ -32,22 +32,15 @@ export default function AdminBusinesses() {
 
   const loadBusinesses = useCallback(async () => {
     try {
-      let query = supabase
-        .from('business_profiles')
-        .select(`
-          id, business_name, business_type, description, user_id, admin_status, created_at,
-          users(email, full_name)
-        `)
-        .order('created_at', { ascending: false })
+      const response = await fetch(`/api/admin/businesses?filter=${filter}`)
+      const result = await response.json()
 
-      if (filter !== 'all') {
-        query = query.eq('admin_status', filter)
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to load businesses')
       }
 
-      const { data } = await query
-
-      if (data) {
-        const businessesWithUser = data.map(business => {
+      if (result.data) {
+        const businessesWithUser = result.data.map((business: any) => {
           const user = Array.isArray(business.users) ? business.users[0] : business.users;
           return {
             ...business,
@@ -70,25 +63,21 @@ export default function AdminBusinesses() {
 
   const handleApproveBusiness = async (business: BusinessProfile) => {
     try {
-      const { error } = await supabase
-        .from('business_profiles')
-        .update({ 
+      const response = await fetch(`/api/admin/businesses/${business.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           admin_status: 'approved',
-          status: 'active'
-        })
-        .eq('id', business.id)
+          action_type: 'approve_business'
+        }),
+      })
 
-      if (error) throw error
+      const result = await response.json()
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        await supabase.from('admin_actions').insert({
-          admin_user_id: user.id,
-          action_type: 'approve_business',
-          target_type: 'business_profiles',
-          target_id: business.id.toString(),
-          details: { business_name: business.business_name }
-        })
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to approve business')
       }
 
       loadBusinesses()
@@ -99,22 +88,21 @@ export default function AdminBusinesses() {
 
   const handleRejectBusiness = async (business: BusinessProfile) => {
     try {
-      const { error } = await supabase
-        .from('business_profiles')
-        .update({ admin_status: 'rejected' })
-        .eq('id', business.id)
+      const response = await fetch(`/api/admin/businesses/${business.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          admin_status: 'rejected',
+          action_type: 'reject_business'
+        }),
+      })
 
-      if (error) throw error
+      const result = await response.json()
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        await supabase.from('admin_actions').insert({
-          admin_user_id: user.id,
-          action_type: 'reject_business',
-          target_type: 'business_profiles',
-          target_id: business.id.toString(),
-          details: { business_name: business.business_name }
-        })
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to reject business')
       }
 
       loadBusinesses()
