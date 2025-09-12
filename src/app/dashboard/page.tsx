@@ -12,6 +12,12 @@ export const dynamic = 'force-dynamic'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
+  const [businessProfile, setBusinessProfile] = useState<{
+    id: number
+    business_name: string
+    business_type: string
+    created_at: string
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -31,6 +37,20 @@ export default function DashboardPage() {
         }
 
         setUser(user)
+
+        const { data: profiles, error: profileError } = await supabase
+          .from('business_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+
+        if (profileError) {
+          console.error('Error fetching business profiles:', profileError)
+        } else if (profiles && profiles.length > 0) {
+          const profile = profiles.sort((a, b) => 
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )[0]
+          setBusinessProfile(profile)
+        }
 
       } catch {
         setError('Không thể tải thông tin người dùng')
@@ -150,12 +170,20 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Doanh nghiệp</h3>
-                <p className="text-sm text-gray-600">Đăng ký doanh nghiệp</p>
+                <p className="text-sm text-gray-600">
+                  {businessProfile ? `${businessProfile.business_name}` : 'Đăng ký doanh nghiệp'}
+                </p>
               </div>
             </div>
-            <Link href="/business/register" className="btn btn-secondary w-full">
-              Đăng ký ngay
-            </Link>
+            {businessProfile ? (
+              <Link href="/business/dashboard" className="btn btn-primary w-full">
+                Vào Business Dashboard
+              </Link>
+            ) : (
+              <Link href="/business/register" className="btn btn-secondary w-full">
+                Đăng ký ngay
+              </Link>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6">

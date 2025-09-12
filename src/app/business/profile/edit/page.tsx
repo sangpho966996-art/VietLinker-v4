@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+import { uploadImage, deleteImage, generateGalleryPath } from '@/lib/supabase-storage'
 import Header from '@/components/Header'
 import type { User } from '@supabase/supabase-js'
 
@@ -38,6 +40,7 @@ export default function EditBusinessProfilePage() {
   const [user, setUser] = useState<User | null>(null)
   const [businessProfile, setBusinessProfile] = useState<{
     id: number
+    user_id: string
     business_name: string
     business_type: string
     description: string
@@ -61,6 +64,8 @@ export default function EditBusinessProfilePage() {
   } | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [selectedCoverImage, setSelectedCoverImage] = useState<File | null>(null)
+  const [uploadingCover, setUploadingCover] = useState(false)
   const [formData, setFormData] = useState({
     business_name: '',
     description: '',
@@ -131,11 +136,29 @@ export default function EditBusinessProfilePage() {
     setSaving(true)
 
     try {
+      let coverImageUrl = businessProfile.cover_image
+
+      if (selectedCoverImage) {
+        setUploadingCover(true)
+        const imagePath = generateGalleryPath(businessProfile.user_id, selectedCoverImage.name)
+        const uploadResult = await uploadImage(selectedCoverImage, 'business-images', imagePath)
+        
+        if (uploadResult.success) {
+          coverImageUrl = uploadResult.url!
+          if (businessProfile.cover_image) {
+            const oldPath = businessProfile.cover_image.split('/').slice(-2).join('/')
+            await deleteImage('business-images', oldPath)
+          }
+        }
+        setUploadingCover(false)
+      }
+
       const { error } = await supabase
         .from('business_profiles')
         .update({
           ...formData,
           hours,
+          cover_image: coverImageUrl,
           updated_at: new Date().toISOString(),
         })
         .eq('id', businessProfile.id)
@@ -148,6 +171,13 @@ export default function EditBusinessProfilePage() {
     } catch {
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleCoverImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedCoverImage(file)
     }
   }
 
@@ -344,6 +374,94 @@ export default function EditBusinessProfilePage() {
                 </div>
               </div>
 
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Ảnh bìa doanh nghiệp</h3>
+                <div className="space-y-4">
+                  {businessProfile?.cover_image && (
+                    <div className="mb-4">
+                      <Image 
+                        src={businessProfile.cover_image} 
+                        alt="Cover" 
+                        width={800}
+                        height={300}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                      <p className="text-sm text-gray-500 mt-2">Ảnh bìa hiện tại</p>
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Chọn ảnh bìa mới
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverImageSelect}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      Chấp nhận: JPG, PNG, GIF. Tối đa 10MB. Kích thước khuyến nghị: 1200x400px
+                    </p>
+                    {selectedCoverImage && (
+                      <div className="mt-2">
+                        <Image
+                          src={URL.createObjectURL(selectedCoverImage)}
+                          alt="Preview"
+                          width={800}
+                          height={300}
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                        <p className="text-sm text-gray-500 mt-2">Xem trước ảnh bìa mới</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Ảnh bìa doanh nghiệp</h3>
+                <div className="space-y-4">
+                  {businessProfile?.cover_image && (
+                    <div className="mb-4">
+                      <Image 
+                        src={businessProfile.cover_image} 
+                        alt="Cover" 
+                        width={800}
+                        height={300}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                      <p className="text-sm text-gray-500 mt-2">Ảnh bìa hiện tại</p>
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Chọn ảnh bìa mới
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverImageSelect}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      Chấp nhận: JPG, PNG, GIF. Tối đa 10MB. Kích thước khuyến nghị: 1200x400px
+                    </p>
+                    {selectedCoverImage && (
+                      <div className="mt-2">
+                        <Image
+                          src={URL.createObjectURL(selectedCoverImage)}
+                          alt="Preview"
+                          width={800}
+                          height={300}
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                        <p className="text-sm text-gray-500 mt-2">Xem trước ảnh bìa mới</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
@@ -354,13 +472,13 @@ export default function EditBusinessProfilePage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={saving}
+                  disabled={saving || uploadingCover}
                   className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {saving ? (
+                  {saving || uploadingCover ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Đang lưu...
+                      {uploadingCover ? 'Đang tải ảnh...' : 'Đang lưu...'}
                     </div>
                   ) : (
                     'Lưu thay đổi'
