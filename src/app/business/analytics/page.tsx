@@ -65,7 +65,6 @@ export default function BusinessAnalyticsPage() {
         const result = await response.json()
         
         if (!response.ok) {
-          console.error('Error fetching business profiles:', result.error)
         } else if (result.data && result.data.length > 0) {
           const profiles = result.data
 

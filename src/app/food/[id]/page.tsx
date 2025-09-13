@@ -217,7 +217,7 @@ export default function FoodBusinessPage() {
       setShowReviewModal(false)
       setReviewForm({ rating: 5, comment: '' })
     } catch (error) {
-      console.error('Error submitting review:', error)
+      
     } finally {
       setSubmittingReview(false)
     }

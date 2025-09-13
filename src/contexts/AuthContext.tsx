@@ -24,7 +24,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(user)
         }
       } catch (error) {
-        console.error('Error getting user:', error)
       } finally {
         setLoading(false)
       }
@@ -39,7 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       window.location.href = '/login'
     } catch (error) {
-      console.error('Error signing out:', error)
     }
   }
 

@@ -86,7 +86,6 @@ export default function ManageMenuPage() {
           .eq('user_id', user.id)
 
         if (profileError) {
-          console.error('Error fetching business profiles:', profileError)
         } else if (profiles && profiles.length > 0) {
           const profile = profiles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
           
@@ -123,13 +122,11 @@ export default function ManageMenuPage() {
         .order('name', { ascending: true })
 
       if (error) {
-        console.error('Error loading menu items:', error)
         return
       }
 
       setMenuItems(data || [])
     } catch (error) {
-      console.error('Error loading menu items:', error)
     }
   }, [businessProfile])
 
@@ -193,7 +190,6 @@ export default function ManageMenuPage() {
       setEditingItem(null)
       
     } catch (error) {
-      console.error('Error saving menu item:', error)
     } finally {
       setUploading(false)
     }
@@ -232,7 +228,6 @@ export default function ManageMenuPage() {
       
       await loadMenuItems()
     } catch (error) {
-      console.error('Error deleting menu item:', error)
     }
   }
 
@@ -250,7 +245,6 @@ export default function ManageMenuPage() {
       
       await loadMenuItems()
     } catch (error) {
-      console.error('Error updating availability:', error)
     }
   }
 

@@ -152,7 +152,6 @@ export default function JobDetailPage() {
         showToast('Đã sao chép liên kết')
       }
     } catch (error) {
-      console.error('Share failed:', error)
     }
   }
 

@@ -42,7 +42,6 @@ function SearchPageContent() {
         setUserLocation({ lat: 30.2672, lng: -97.7431 })
       }
     } catch (error) {
-      console.error('Geocoding error:', error)
     }
   }
 
@@ -163,7 +162,6 @@ function SearchPageContent() {
 
       setResults(allResults)
     } catch (error) {
-      console.error('Search error:', error)
     } finally {
       setLoading(false)
     }
