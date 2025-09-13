@@ -19,9 +19,16 @@ export default function DashboardPage() {
   } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isClient, setIsClient] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isClient) return
+    
     const getUser = async () => {
       try {
         if (authLoading) return
@@ -53,9 +60,9 @@ export default function DashboardPage() {
     }
 
     getUser()
-  }, [user, authLoading, router])
+  }, [isClient, user, authLoading, router])
 
-  if (loading) {
+  if (!isClient || authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

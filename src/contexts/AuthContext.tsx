@@ -14,8 +14,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isClient) return
+    
     const getUser = async () => {
       try {
         const response = await fetch('/api/auth/user')
@@ -31,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     getUser()
-  }, [])
+  }, [isClient])
 
   const signOut = async () => {
     try {
