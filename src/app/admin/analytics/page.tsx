@@ -6,8 +6,6 @@ import AdminLayout from '@/components/admin/AdminLayout'
 
 export const dynamic = 'force-dynamic'
 
-export const dynamic = 'force-dynamic'
-
 interface AdminAction {
   id: number
   action_type: string
