@@ -148,8 +148,7 @@ export default function MarketplaceDetailPage() {
       if (!navigator.share) {
         showToast('Đã sao chép liên kết')
       }
-    } catch (error) {
-      console.error('Share failed:', error)
+    } catch {
     }
   }
 

@@ -23,8 +23,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { user } = await response.json()
           setUser(user)
         }
-      } catch (error) {
-        console.error('Error getting user:', error)
+      } catch {
+        
       } finally {
         setLoading(false)
       }
@@ -38,8 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await fetch('/api/auth/signout', { method: 'POST' })
       setUser(null)
       window.location.href = '/login'
-    } catch (error) {
-      console.error('Error signing out:', error)
+    } catch {
+      
     }
   }
 

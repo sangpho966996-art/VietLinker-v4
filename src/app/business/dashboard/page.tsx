@@ -44,7 +44,6 @@ export default function BusinessDashboard() {
       const result = await response.json()
       
       if (!response.ok) {
-        console.error('Error fetching business profiles:', result.error)
         return
       }
       

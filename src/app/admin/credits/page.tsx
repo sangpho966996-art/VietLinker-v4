@@ -67,8 +67,7 @@ function AdminCreditsContent() {
 
       if (error) throw error
       setUsers(data || [])
-    } catch (error) {
-      console.error('Error loading users:', error)
+    } catch {
     }
   }
 
@@ -85,8 +84,7 @@ function AdminCreditsContent() {
 
       if (error) throw error
       setTransactions(data || [])
-    } catch (error) {
-      console.error('Error loading transactions:', error)
+    } catch {
     } finally {
       setLoading(false)
     }
@@ -134,8 +132,7 @@ function AdminCreditsContent() {
       setSelectedUser({ ...selectedUser, credits: newCredits })
       loadUsers()
       loadTransactions()
-    } catch (error) {
-      console.error('Error adjusting credits:', error)
+    } catch {
     } finally {
       setIsAdjusting(false)
     }

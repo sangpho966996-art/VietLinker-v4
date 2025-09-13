@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase, BusinessHours } from '@/lib/supabase'
-import type { User } from '@supabase/supabase-js'
 import { copyToClipboard, shareContent, showToast } from '@/lib/contact-utils'
 import Header from '@/components/Header'
 import { useAuth } from '@/contexts/AuthContext'
@@ -216,8 +215,8 @@ export default function FoodBusinessPage() {
       await loadBusinessData()
       setShowReviewModal(false)
       setReviewForm({ rating: 5, comment: '' })
-    } catch (error) {
-      console.error('Error submitting review:', error)
+    } catch {
+      setError('Không thể gửi đánh giá. Vui lòng thử lại.')
     } finally {
       setSubmittingReview(false)
     }

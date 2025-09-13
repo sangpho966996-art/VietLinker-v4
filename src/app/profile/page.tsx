@@ -69,7 +69,7 @@ export default function ProfilePage() {
     }
 
     checkUser()
-  }, [router])
+  }, [authLoading, user, router])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

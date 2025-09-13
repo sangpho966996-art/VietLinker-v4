@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const lat = parseFloat(searchParams.get('lat') || '0')
@@ -122,8 +124,7 @@ export async function GET(request: NextRequest) {
       radius
     })
 
-  } catch (error) {
-    console.error('Nearby search error:', error)
+  } catch {
     return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

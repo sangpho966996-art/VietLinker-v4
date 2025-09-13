@@ -59,8 +59,7 @@ export default function AdminReports() {
         }))
         setReports(reportsWithUser)
       }
-    } catch (error) {
-      console.error('Error loading reports:', error)
+    } catch {
     } finally {
       setLoading(false)
     }
@@ -93,8 +92,7 @@ export default function AdminReports() {
       }
 
       loadReports()
-    } catch (error) {
-      console.error('Error resolving report:', error)
+    } catch {
     }
   }
 
@@ -121,8 +119,7 @@ export default function AdminReports() {
       }
 
       loadReports()
-    } catch (error) {
-      console.error('Error dismissing report:', error)
+    } catch {
     }
   }
 

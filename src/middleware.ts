@@ -73,8 +73,7 @@ export async function middleware(request: NextRequest) {
       if (!userData || userData.role !== 'admin') {
         return NextResponse.redirect(new URL('/dashboard', request.url))
       }
-    } catch (error) {
-      console.error('Admin middleware error:', error)
+    } catch {
       return NextResponse.redirect(new URL('/login?error=admin_check_failed', request.url))
     }
   }

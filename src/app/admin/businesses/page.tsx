@@ -49,8 +49,7 @@ export default function AdminBusinesses() {
         })
         setBusinesses(businessesWithUser)
       }
-    } catch (error) {
-      console.error('Error loading businesses:', error)
+    } catch {
     } finally {
       setLoading(false)
     }
@@ -80,8 +79,7 @@ export default function AdminBusinesses() {
       }
 
       loadBusinesses()
-    } catch (error) {
-      console.error('Error approving business:', error)
+    } catch {
     }
   }
 
@@ -105,8 +103,7 @@ export default function AdminBusinesses() {
       }
 
       loadBusinesses()
-    } catch (error) {
-      console.error('Error rejecting business:', error)
+    } catch {
     }
   }
 

@@ -35,8 +35,7 @@ export default function AdminUsers() {
       }
 
       setUsers(result.data || [])
-    } catch (error) {
-      console.error('Error loading users:', error)
+    } catch {
     } finally {
       setLoading(false)
     }
@@ -47,10 +46,8 @@ export default function AdminUsers() {
   }, [loadUsers])
 
   const handleRoleChange = async (userId: string, newRole: 'user' | 'admin' | 'moderator') => {
-    console.log('handleRoleChange called:', { userId, newRole, type: typeof newRole })
     try {
       const requestBody = { role: newRole }
-      console.log('Sending request body:', requestBody)
       
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'PATCH',
@@ -67,8 +64,7 @@ export default function AdminUsers() {
       }
       
       loadUsers()
-    } catch (error) {
-      console.error('Error updating user role:', error)
+    } catch {
     }
   }
 
@@ -160,14 +156,6 @@ export default function AdminUsers() {
                           const selectElement = e.target as HTMLSelectElement
                           const newRole = selectElement.value as 'user' | 'admin' | 'moderator'
                           
-                          console.log('Role dropdown changed:', { 
-                            userId: user.id, 
-                            oldRole: user.role, 
-                            newRole,
-                            selectValue: selectElement.value,
-                            selectedIndex: selectElement.selectedIndex,
-                            optionsLength: selectElement.options.length
-                          })
                           
                           if (newRole && newRole !== user.role && ['user', 'admin', 'moderator'].includes(newRole)) {
                             handleRoleChange(user.id, newRole)

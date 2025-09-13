@@ -86,7 +86,6 @@ export default function ManageMenuPage() {
           .eq('user_id', user.id)
 
         if (profileError) {
-          console.error('Error fetching business profiles:', profileError)
         } else if (profiles && profiles.length > 0) {
           const profile = profiles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
           
@@ -109,7 +108,7 @@ export default function ManageMenuPage() {
     }
 
     checkUserAndLoadProfile()
-  }, [router])
+  }, [authLoading, user, router])
 
   const loadMenuItems = useCallback(async () => {
     if (!businessProfile) return
@@ -123,13 +122,11 @@ export default function ManageMenuPage() {
         .order('name', { ascending: true })
 
       if (error) {
-        console.error('Error loading menu items:', error)
         return
       }
 
       setMenuItems(data || [])
-    } catch (error) {
-      console.error('Error loading menu items:', error)
+    } catch {
     }
   }, [businessProfile])
 
@@ -192,8 +189,7 @@ export default function ManageMenuPage() {
       setShowAddForm(false)
       setEditingItem(null)
       
-    } catch (error) {
-      console.error('Error saving menu item:', error)
+    } catch {
     } finally {
       setUploading(false)
     }
@@ -231,8 +227,7 @@ export default function ManageMenuPage() {
       if (error) throw error
       
       await loadMenuItems()
-    } catch (error) {
-      console.error('Error deleting menu item:', error)
+    } catch {
     }
   }
 
@@ -249,12 +244,11 @@ export default function ManageMenuPage() {
       if (error) throw error
       
       await loadMenuItems()
-    } catch (error) {
-      console.error('Error updating availability:', error)
+    } catch {
     }
   }
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect= (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       setSelectedImage(file)

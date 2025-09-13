@@ -89,8 +89,7 @@ export default function AdminAnalytics() {
         newPostsThisMonth: newPostsThisMonth || 0,
         recentActions: recentActions || []
       })
-    } catch (error) {
-      console.error('Error loading analytics:', error)
+    } catch {
     } finally {
       setLoading(false)
     }

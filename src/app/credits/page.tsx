@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { stripePromise } from '@/lib/stripe'
 import Header from '@/components/Header'
 import { useAuth } from '@/contexts/AuthContext'
-import type { User } from '@supabase/supabase-js'
 
 interface CreditPackage {
   credits: number
@@ -66,7 +65,7 @@ function CreditsPageContent() {
     } else if (canceled) {
       router.replace('/credits?message=canceled')
     }
-  }, [router, searchParams])
+  }, [authLoading, user, router, searchParams])
 
   const handlePurchase = async (credits: number) => {
     if (!user) return

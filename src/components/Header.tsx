@@ -11,8 +11,7 @@ export default React.memo(function Header() {
   const handleSignOut = async () => {
     try {
       await signOut()
-    } catch (error) {
-      console.error('Error signing out:', error)
+    } catch {
     }
   }
 

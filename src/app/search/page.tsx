@@ -41,8 +41,7 @@ function SearchPageContent() {
       } else if (locationStr.toLowerCase().includes('austin')) {
         setUserLocation({ lat: 30.2672, lng: -97.7431 })
       }
-    } catch (error) {
-      console.error('Geocoding error:', error)
+    } catch {
     }
   }
 
@@ -162,8 +161,7 @@ function SearchPageContent() {
       }
 
       setResults(allResults)
-    } catch (error) {
-      console.error('Search error:', error)
+    } catch {
     } finally {
       setLoading(false)
     }

@@ -406,8 +406,8 @@ export default function CreateJobPage() {
             setUserCredits(creditsResult.credits || 0)
           }
         }
-      } catch (error) {
-        console.error('Error fetching user credits:', error)
+      } catch {
+        setError('Không thể tải thông tin credits')
       }
     }
 
@@ -529,7 +529,7 @@ export default function CreateJobPage() {
         }),
       })
 
-      const creditsResult = await creditsResponse.json()
+      await creditsResponse.json()
 
       if (!creditsResponse.ok) {
         setError('Không thể trừ credits')

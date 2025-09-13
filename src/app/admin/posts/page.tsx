@@ -81,8 +81,7 @@ export default function AdminPosts() {
 
       allPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       setPosts(allPosts)
-    } catch (error) {
-      console.error('Error loading posts:', error)
+    } catch {
     } finally {
       setLoading(false)
     }
@@ -115,8 +114,7 @@ export default function AdminPosts() {
       }
 
       loadPosts()
-    } catch (error) {
-      console.error('Error approving post:', error)
+    } catch {
     }
   }
 
@@ -140,8 +138,7 @@ export default function AdminPosts() {
       }
 
       loadPosts()
-    } catch (error) {
-      console.error('Error rejecting post:', error)
+    } catch {
     }
   }
 

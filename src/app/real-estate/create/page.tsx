@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
 import { useAuth } from '@/contexts/AuthContext'
-import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 

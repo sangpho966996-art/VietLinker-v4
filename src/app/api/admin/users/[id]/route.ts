@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic'
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export async function PATCH(
@@ -16,11 +18,7 @@ export async function PATCH(
     const resolvedParams = await params
     const userId = resolvedParams.id
 
-    console.log('PATCH /api/admin/users/[id] - Received body:', body)
-    console.log('PATCH /api/admin/users/[id] - Role value:', role, 'Type:', typeof role)
-
     if (!role || !['user', 'admin', 'moderator'].includes(role)) {
-      console.log('PATCH /api/admin/users/[id] - Invalid role rejected:', role)
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
     }
 
@@ -31,13 +29,11 @@ export async function PATCH(
       .select()
 
     if (error) {
-      console.error('Error updating user role:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ data })
-  } catch (error) {
-    console.error('Error in user update API:', error)
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
