@@ -30,13 +30,11 @@ export async function GET() {
       .single()
 
     if (error) {
-      console.error('Error fetching user credits:', error)
       return NextResponse.json({ error: 'Failed to fetch credits' }, { status: 500 })
     }
 
     return NextResponse.json({ credits: data?.credits || 0 })
   } catch (error) {
-    console.error('Error in user credits API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

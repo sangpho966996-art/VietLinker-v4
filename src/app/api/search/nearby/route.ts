@@ -123,7 +123,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Nearby search error:', error)
     return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

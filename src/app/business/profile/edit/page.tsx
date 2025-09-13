@@ -95,7 +95,6 @@ export default function EditBusinessProfilePage() {
           .eq('user_id', user.id)
 
         if (profileError) {
-          console.error('Error fetching business profiles:', profileError)
         } else if (profiles && profiles.length > 0) {
           const profile = profiles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
           setBusinessProfile(profile)

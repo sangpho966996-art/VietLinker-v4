@@ -149,7 +149,7 @@ export default function MarketplaceDetailPage() {
         showToast('Đã sao chép liên kết')
       }
     } catch (error) {
-      console.error('Share failed:', error)
+      
     }
   }
 

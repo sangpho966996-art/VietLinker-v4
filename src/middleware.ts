@@ -74,7 +74,6 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
       }
     } catch (error) {
-      console.error('Admin middleware error:', error)
       return NextResponse.redirect(new URL('/login?error=admin_check_failed', request.url))
     }
   }

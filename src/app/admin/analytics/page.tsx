@@ -90,7 +90,6 @@ export default function AdminAnalytics() {
         recentActions: recentActions || []
       })
     } catch (error) {
-      console.error('Error loading analytics:', error)
     } finally {
       setLoading(false)
     }

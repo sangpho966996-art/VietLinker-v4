@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     const serviceSupabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
     const { data: userData } = await serviceSupabase
@@ -56,13 +56,11 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching businesses:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ data })
   } catch (error) {
-    console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

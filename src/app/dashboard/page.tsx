@@ -35,7 +35,7 @@ export default function DashboardPage() {
         const result = await response.json()
         
         if (!response.ok) {
-          console.error('Error fetching business profiles:', result.error)
+          setError('Không thể tải thông tin doanh nghiệp')
         } else if (result.data && result.data.length > 0) {
           const profiles = result.data
 

@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react'
+import React, { useState, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/Header'
-import { supabase } from '@/lib/supabase'
+import { useRealEstatePosts } from '@/hooks/useBusinessProfile'
+import { PostGridSkeleton } from '@/components/skeletons/PostSkeleton'
 import type { Database } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -12,12 +13,16 @@ export const dynamic = 'force-dynamic'
 type RealEstatePost = Database['public']['Tables']['real_estate_posts']['Row']
 
 export default function RealEstatePage() {
-  const [posts, setPosts] = useState<RealEstatePost[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [selectedPropertyType, setSelectedPropertyType] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [priceRange, setPriceRange] = useState<string>('')
+  const [page, setPage] = useState(0)
+  
+  const { data: posts, isLoading, error } = useRealEstatePosts({
+    propertyType: selectedPropertyType || undefined,
+    search: searchQuery || undefined,
+    page
+  })
 
   const propertyTypes = [
     { value: '', label: 'Tất cả loại bất động sản' },
@@ -40,47 +45,9 @@ export default function RealEstatePage() {
     { value: '1000000-999999999', label: 'Trên $1,000,000' }
   ]
 
-  const loadPosts = useCallback(async () => {
-    try {
-      setLoading(true)
-      let query = supabase
-        .from('real_estate_posts')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-
-      if (selectedPropertyType) {
-        query = query.eq('property_type', selectedPropertyType)
-      }
-
-      if (searchQuery) {
-        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,address.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%`)
-      }
-
-      if (priceRange) {
-        const [min, max] = priceRange.split('-').map(Number)
-        if (max === 999999999) {
-          query = query.gte('price', min)
-        } else {
-          query = query.gte('price', min).lte('price', max)
-        }
-      }
-
-      const { data, error } = await query
-
-      if (error) throw error
-
-      setPosts(data || [])
-    } catch {
-      setError('Không thể tải tin đăng bất động sản')
-    } finally {
-      setLoading(false)
-    }
+  React.useEffect(() => {
+    setPage(0)
   }, [selectedPropertyType, searchQuery, priceRange])
-
-  useEffect(() => {
-    loadPosts()
-  }, [loadPosts])
 
   const formatPrice = (price: number | null) => {
     if (!price) return 'Liên hệ'
@@ -189,22 +156,19 @@ export default function RealEstatePage() {
         </div>
 
         {/* Posts Grid */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Đang tải tin đăng...</p>
-          </div>
+        {isLoading ? (
+          <PostGridSkeleton count={9} />
         ) : error ? (
           <div className="text-center py-12">
-            <p className="text-red-600">{error}</p>
+            <p className="text-red-600">Không thể tải tin đăng bất động sản</p>
           </div>
-        ) : posts.length === 0 ? (
+        ) : !posts || posts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600">Không có tin đăng nào</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
+            {posts.map((post: RealEstatePost) => (
               <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 {/* Image */}
                 <div className="h-48 bg-gray-200 relative">

@@ -7,6 +7,8 @@ import { supabase } from '@/lib/supabase'
 import { uploadImage, generateAvatarPath } from '@/lib/supabase-storage'
 import { useAuth } from '@/contexts/AuthContext'
 
+export const dynamic = 'force-dynamic'
+
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth()
   const [userProfile, setUserProfile] = useState<{

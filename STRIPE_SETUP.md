@@ -25,7 +25,7 @@ Add these to your `.env.local` file:
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
 STRIPE_SECRET_KEY=sk_test_your_key_here  
 STRIPE_WEBHOOK_SECRET=whsec_your_secret_here
-SUPABASE_SERVICE_KEY=your_service_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_key_here
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 

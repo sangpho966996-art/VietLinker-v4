@@ -407,7 +407,7 @@ export default function CreateJobPage() {
           }
         }
       } catch (error) {
-        console.error('Error fetching user credits:', error)
+        
       }
     }
 

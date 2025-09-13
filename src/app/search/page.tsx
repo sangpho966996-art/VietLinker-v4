@@ -42,7 +42,6 @@ function SearchPageContent() {
         setUserLocation({ lat: 30.2672, lng: -97.7431 })
       }
     } catch (error) {
-      console.error('Geocoding error:', error)
     }
   }
 
@@ -62,15 +61,34 @@ function SearchPageContent() {
     const allResults: SearchResult[] = []
 
     try {
-      const { data: marketplaceData } = await supabase
-        .from('marketplace_posts')
-        .select('*')
-        .eq('status', 'active')
-        .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
-        .limit(20)
+      const [marketplaceResult, jobResult, realEstateResult, businessResult] = await Promise.all([
+        supabase
+          .from('marketplace_posts')
+          .select('*')
+          .eq('status', 'active')
+          .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
+          .limit(20),
+        supabase
+          .from('job_posts')
+          .select('*')
+          .eq('status', 'active')
+          .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
+          .limit(20),
+        supabase
+          .from('real_estate_posts')
+          .select('*')
+          .eq('status', 'active')
+          .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
+          .limit(20),
+        supabase
+          .from('business_profiles')
+          .select('*')
+          .or(`business_name.ilike.%${query}%,description.ilike.%${query}%`)
+          .limit(20)
+      ])
 
-      if (marketplaceData) {
-        marketplaceData.forEach((item: Database['public']['Tables']['marketplace_posts']['Row']) => {
+      if (marketplaceResult.data) {
+        marketplaceResult.data.forEach((item: Database['public']['Tables']['marketplace_posts']['Row']) => {
           allResults.push({
             id: item.id.toString(),
             title: item.title || '',
@@ -83,15 +101,8 @@ function SearchPageContent() {
         })
       }
 
-      const { data: jobData } = await supabase
-        .from('job_posts')
-        .select('*')
-        .eq('status', 'active')
-        .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
-        .limit(20)
-
-      if (jobData) {
-        jobData.forEach((item: Database['public']['Tables']['job_posts']['Row']) => {
+      if (jobResult.data) {
+        jobResult.data.forEach((item: Database['public']['Tables']['job_posts']['Row']) => {
           allResults.push({
             id: item.id.toString(),
             title: item.title || '',
@@ -102,15 +113,8 @@ function SearchPageContent() {
         })
       }
 
-      const { data: realEstateData } = await supabase
-        .from('real_estate_posts')
-        .select('*')
-        .eq('status', 'active')
-        .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
-        .limit(20)
-
-      if (realEstateData) {
-        realEstateData.forEach((item: Database['public']['Tables']['real_estate_posts']['Row']) => {
+      if (realEstateResult.data) {
+        realEstateResult.data.forEach((item: Database['public']['Tables']['real_estate_posts']['Row']) => {
           allResults.push({
             id: item.id.toString(),
             title: item.title || '',
@@ -126,14 +130,8 @@ function SearchPageContent() {
         })
       }
 
-      const { data: businessData } = await supabase
-        .from('business_profiles')
-        .select('*')
-        .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
-        .limit(20)
-
-      if (businessData) {
-        businessData.forEach((item: Database['public']['Tables']['business_profiles']['Row']) => {
+      if (businessResult.data) {
+        businessResult.data.forEach((item: Database['public']['Tables']['business_profiles']['Row']) => {
           allResults.push({
             id: item.id.toString(),
             title: item.business_name || '',
@@ -163,7 +161,6 @@ function SearchPageContent() {
 
       setResults(allResults)
     } catch (error) {
-      console.error('Search error:', error)
     } finally {
       setLoading(false)
     }

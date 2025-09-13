@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (!stripeSecretKey || !webhookSecret || !supabaseUrl || !supabaseServiceKey) {
       return NextResponse.json({ error: 'Configuration missing' }, { status: 500 })
@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
     } catch (err) {
-      console.error('Webhook signature verification failed:', err)
       return NextResponse.json(
         { error: 'Webhook signature verification failed' },
         { status: 400 }
@@ -47,7 +46,6 @@ export async function POST(request: NextRequest) {
       })
 
       if (creditError) {
-        console.error('Error adding credits:', creditError)
         return NextResponse.json(
           { error: 'Failed to add credits' },
           { status: 500 }
@@ -59,7 +57,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error('Webhook error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
