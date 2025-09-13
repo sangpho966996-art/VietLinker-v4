@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import type { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { uploadImage, generateGalleryPath } from '@/lib/supabase-storage'
 import { useAuth } from '@/contexts/AuthContext'
-import type { User } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 

@@ -40,7 +40,7 @@ export default function BusinessDashboard() {
       }
 
 
-      const response = await fetch(`/api/business/profiles?user_id=${user.id}`)
+      const response = await fetch(`/api/business-profiles?user_id=${user.id}`)
       const result = await response.json()
       
       if (!response.ok) {
