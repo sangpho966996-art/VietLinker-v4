@@ -7,16 +7,16 @@ export async function GET(request: NextRequest) {
   try {
     const clientIP = getClientIP(request)
     
-    if (!rateLimit(clientIP, 20, 60000)) {
+    if (!rateLimit(clientIP, 30, 60000)) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('user_id')
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
-    }
+    const category = searchParams.get('category')
+    const search = searchParams.get('search')
+    const page = parseInt(searchParams.get('page') || '0')
+    const limit = 12
+    const offset = page * limit
 
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -31,27 +31,32 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    if (user.id !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    const { data, error } = await supabase
-      .from('business_profiles')
-      .select('*')
-      .eq('user_id', userId)
+    let query = supabase
+      .from('marketplace_posts')
+      .select('*', { count: 'exact' })
+      .eq('status', 'active')
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (category) {
+      query = query.eq('category', category)
+    }
+
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+    }
+
+    const { data, error, count } = await query
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to fetch business profiles' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })
     }
 
-    return NextResponse.json({ data: data || [] })
+    return NextResponse.json({ 
+      data: data || [], 
+      count,
+      hasMore: (count || 0) > offset + limit
+    })
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

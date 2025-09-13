@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react'
+import React, { useState, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/Header'
-import { supabase } from '@/lib/supabase'
+import { useJobPosts } from '@/hooks/useBusinessProfile'
+import { PostGridSkeleton } from '@/components/skeletons/PostSkeleton'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,11 +30,15 @@ interface JobPost {
 }
 
 export default function JobsPage() {
-  const [posts, setPosts] = useState<JobPost[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [page, setPage] = useState(0)
+  
+  const { data: posts, isLoading, error } = useJobPosts({
+    category: selectedCategory !== 'all' ? selectedCategory : undefined,
+    search: searchTerm || undefined,
+    page
+  })
 
   const categories = [
     { value: 'all', label: 'Tất cả ngành nghề' },
@@ -46,47 +51,9 @@ export default function JobsPage() {
     { value: 'other', label: 'Khác' }
   ]
 
-  const loadPosts = useCallback(async () => {
-    try {
-      setLoading(true)
-      let query = supabase
-        .from('job_posts')
-        .select(`
-          *,
-          users (
-            full_name,
-            email
-          )
-        `)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-
-      if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%,location.ilike.%${searchTerm}%`)
-      }
-
-      if (selectedCategory !== 'all') {
-        query = query.eq('category', selectedCategory)
-      }
-
-      const { data, error } = await query
-
-      if (error) {
-        setError('Không thể tải danh sách việc làm')
-        return
-      }
-
-      setPosts(data || [])
-    } catch {
-      setError('Không thể tải danh sách việc làm')
-    } finally {
-      setLoading(false)
-    }
+  React.useEffect(() => {
+    setPage(0)
   }, [searchTerm, selectedCategory])
-
-  useEffect(() => {
-    loadPosts()
-  }, [loadPosts])
 
   const formatSalary = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Thỏa thuận'
@@ -116,12 +83,14 @@ export default function JobsPage() {
     return types[jobType] || jobType
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Đang tải danh sách việc làm...</p>
+      <div className="min-h-screen bg-gray-50">
+        <Suspense fallback={<div className="h-16 bg-white border-b"></div>}>
+          <Header />
+        </Suspense>
+        <div className="container mx-auto px-4 py-8">
+          <PostGridSkeleton count={9} />
         </div>
       </div>
     )
@@ -186,18 +155,18 @@ export default function JobsPage() {
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-6">
-            {error}
+            Không thể tải danh sách việc làm
           </div>
         )}
 
         {/* Job Posts Grid */}
-        {posts.length === 0 ? (
+        {!posts || posts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">Không có tin đăng nào</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {posts.map((post) => (
+            {posts.map((post: JobPost) => (
               <Link key={post.id} href={`/jobs/${post.id}`}>
                 <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                   {post.images && post.images.length > 0 && (

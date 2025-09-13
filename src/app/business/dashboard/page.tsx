@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useBusinessProfile } from '@/hooks/useBusinessProfile'
 import Link from 'next/link'
 import Header from '@/components/Header'
+import { BusinessDashboardSkeleton } from '@/components/skeletons/PostSkeleton'
 
 interface BusinessProfile {
   id: number
@@ -27,53 +29,22 @@ interface BusinessProfile {
 export default function BusinessDashboard() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const [loading, setLoading] = useState(true)
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null)
+  const { data: businessProfiles, isLoading, error } = useBusinessProfile(user?.id)
 
-  const checkUserAndLoadProfile = useCallback(async () => {
-    try {
-      if (authLoading) return
-      
-      if (!user) {
-        router.push('/login')
-        return
-      }
-
-
-      const response = await fetch(`/api/business-profiles?user_id=${user.id}`)
-      const result = await response.json()
-      
-      if (!response.ok) {
-        return
-      }
-      
-      const profiles = result.data
-
-
-      if (profiles && profiles.length > 0) {
-        const profile = profiles.sort((a: { created_at: string }, b: { created_at: string }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
-        setBusinessProfile(profile)
-      }
-    } catch {
-    } finally {
-      setLoading(false)
+  React.useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login')
     }
-  }, [router, user, authLoading])
+  }, [user, authLoading, router])
 
-  useEffect(() => {
-    checkUserAndLoadProfile()
-  }, [checkUserAndLoadProfile])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Đang tải...</p>
-        </div>
-      </div>
-    )
+  if (authLoading || isLoading) {
+    return <BusinessDashboardSkeleton />
   }
+
+  const businessProfile = businessProfiles && businessProfiles.length > 0 
+    ? businessProfiles.sort((a: { created_at: string }, b: { created_at: string }) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
+    : null
 
   if (!businessProfile) {
     return (
