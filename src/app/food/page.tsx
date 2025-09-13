@@ -6,6 +6,8 @@ import Image from 'next/image'
 import Header from '@/components/Header'
 import { supabase, BusinessHours } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 interface BusinessProfile {
   id: number
   business_name: string
